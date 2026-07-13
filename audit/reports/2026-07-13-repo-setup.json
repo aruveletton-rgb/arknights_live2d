@@ -34,6 +34,12 @@
       "evidence": "all four supplied source documents were readable"
     },
     {
+      "name": "four-person-role-consistency",
+      "command_or_action": "assert the A1/person 1, A2/person 2, B/person 3 and C/person 4 mappings and scan for stale current-two-person wording",
+      "result": "pass",
+      "evidence": "the four-person, three-thread mapping is consistent and no forbidden stale wording remains"
+    },
+    {
       "name": "relative-markdown-links",
       "command_or_action": "resolve every relative Markdown link and test its target path",
       "result": "pass",
@@ -47,9 +53,9 @@
     },
     {
       "name": "github-markdown-render",
-      "command_or_action": "GitHub Markdown API for README.md and docs/PULL_REQUEST_GUIDE.md",
+      "command_or_action": "GitHub Markdown API for README.md, docs/TEAM_RESPONSIBILITIES.md and docs/API_CONTRACT.md",
       "result": "pass",
-      "evidence": "both documents rendered without API errors"
+      "evidence": "all three documents rendered without API errors"
     },
     {
       "name": "git-diff-check",
@@ -68,8 +74,8 @@
     "Client, backend, Live2D, TTS, ASR and server deployment tests were not run because this change contains no implementation code."
   ],
   "risks": [
-    "The two-person execution model still needs confirmation from person 1 and person 2.",
-    "The supplied materials describe conflicting server topologies; person 2 must test and propose a final topology."
+    "The shared API contract still requires confirmation from persons 1, 2, 3 and 4 before implementation.",
+    "The four-server target topology has been restored from the master plan, but person 4 must still verify actual resources and runtime behavior."
   ],
   "open_items": [
     "Pull Request #1 is not merged, so main does not yet contain these documents.",
@@ -77,8 +83,8 @@
   ],
   "next_steps": [
     "Repository owner reviews and decides whether to merge Pull Request #1.",
-    "Person 1 and person 2 confirm responsibilities and API_CONTRACT.md v0.1.",
-    "Create separate Phase 1 tasks for the client and backend minimum demonstrations."
+    "Persons 1, 2, 3 and 4 confirm their responsibilities and API_CONTRACT.md v0.1.",
+    "Create separate Phase 1 tasks for the A1, A2, B and C minimum demonstrations."
   ],
   "changes_shared_contract": true,
   "contains_sensitive_information": false,

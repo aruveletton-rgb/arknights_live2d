@@ -10,8 +10,8 @@
 ## 文件位置和命名
 
 ```text
-audit/reports/YYYY-MM-DD-person-1-short-task.md
-audit/reports/YYYY-MM-DD-person-1-short-task.json
+audit/reports/YYYY-MM-DD-thread-a1-short-task.md
+audit/reports/YYYY-MM-DD-thread-a1-short-task.json
 ```
 
 最终集成报告：
@@ -20,6 +20,8 @@ audit/reports/YYYY-MM-DD-person-1-short-task.json
 audit/final_integration_audit.md
 audit/final_integration_audit.json
 ```
+
+线程名称使用：`thread-a1`、`thread-a2`、`thread-b`、`thread-c`。仓库设置或全员任务可以使用清楚的任务名代替线程名。
 
 ## 状态含义
 

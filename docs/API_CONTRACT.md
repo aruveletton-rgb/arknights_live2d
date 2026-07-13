@@ -1,8 +1,8 @@
 # 对话接口约定 v0.1
 
-本文件是 1 号客户端与 2 号后端之间的共同约定。它描述双方交换什么信息，不要求非技术参与者理解具体实现。
+本文件是线程 A 客户端与角色包、线程 B 后端、线程 C 语音服务之间的共同约定。它描述三条线程交换什么信息，不要求非技术参与者理解具体实现。
 
-> 状态：Phase 0 初稿，待 1 号和 2 号在 PR 中确认后冻结。当前仓库尚无对应实现或测试结果。
+> 状态：Phase 0 初稿，待 1、2、3、4 号在 PR 中确认后冻结。当前仓库尚无对应实现或测试结果。
 
 ## 1. 一次对话怎样流动
 
@@ -50,8 +50,8 @@ POST /api/chat
 {
   "session_id": "local-user-001",
   "character_id": "operator_default",
-  "reply_text": "博士，今天的任务已经整理好了。",
-  "emotion": "happy",
+  "text": "博士，今天的任务已经整理好了。",
+  "emotion": "smile",
   "motion": "nod",
   "audio_url": "https://example.com/audio/reply.wav",
   "audio_base64": null,
@@ -62,44 +62,43 @@ POST /api/chat
 
 | 字段 | 由谁处理 | 规则 |
 | --- | --- | --- |
-| `reply_text` | 1 号显示，2 号生成 | 成功响应必须有文字 |
-| `emotion` | 1 号切表情，2 号生成 | 必须来自下方固定列表 |
-| `motion` | 1 号播动作，2 号生成 | 必须来自下方固定列表 |
-| `audio_url` | 1 号播放，2 号提供 | 与 `audio_base64` 至少一个可用；TTS 失败时可都为 `null` |
+| `text` | 1 号显示，3 号生成 | 成功响应必须有文字 |
+| `emotion` | 2 号定义、3 号返回、1 号显示 | 必须来自下方固定列表 |
+| `motion` | 2 号定义、3 号返回、1 号播放 | 必须来自下方固定列表 |
+| `audio_url` | 4 号提供、3 号转交、1 号播放 | 与 `audio_base64` 至少一个可用；TTS 失败时可都为 `null` |
 | `duration_ms` | 1 号可用于播放控制 | 未知时可为 `null` |
 | `error` | 1 号显示，2 号说明 | 成功时为 `null` |
 
 ## 4. 固定的表情和动作
 
-当前以两份独立人员计划书中共同使用的方案为准。
+当前以四人三线程总计划中冻结的角色包和接口枚举为准。1 号和 2 号负责在线程 A 内确认模型与角色包能支持这些值，3 号负责按合同返回，4 号的语音服务不得改变它们。
 
 `emotion` 可选值：
 
 ```text
 neutral
-happy
-thinking
-confused
+smile
 serious
+worried
 sad
-error
+surprised
+thinking
+confident
 ```
 
 `motion` 可选值：
 
 ```text
 idle
+greeting
 nod
-shake_head
-wave
+shake
 think
-speak
-alert
+encourage
+battle_ready
 ```
 
-安全默认值：无法判断表情时使用 `neutral`；无法判断动作时使用 `speak`，待机时使用 `idle`。
-
-早期四人总计划中的 `smile`、`greeting` 等名称不再作为 v0.1 的正式值，避免客户端同时维护两套名称。
+安全默认值：无法判断表情时使用 `neutral`；无法判断动作时使用 `idle`。
 
 ## 5. 失败时怎样返回
 
@@ -109,9 +108,9 @@ alert
 {
   "session_id": "local-user-001",
   "character_id": "operator_default",
-  "reply_text": "博士，语音服务暂时不可用，我先用文字回复。",
-  "emotion": "error",
-  "motion": "shake_head",
+  "text": "博士，语音服务暂时不可用，我先用文字回复。",
+  "emotion": "worried",
+  "motion": "encourage",
   "audio_url": null,
   "audio_base64": null,
   "duration_ms": null,
@@ -137,4 +136,4 @@ alert
 1. 单独发起标题以 `[接口变更]` 开头的 PR。
 2. 同时说明对客户端和后端的影响。
 3. 给出旧版本是否仍能工作的说明。
-4. 由 1 号和 2 号确认，仓库拥有者合并后生效。
+4. 由 1、2、3、4 号确认，仓库拥有者合并后生效。

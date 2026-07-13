@@ -1,7 +1,7 @@
 # 工作报告：简短任务名
 
 - 日期：YYYY-MM-DD
-- 负责人：person-1 / person-2 / owner
+- 负责人：person-1 / person-2 / person-3 / person-4 / owner
 - 状态：pass / partial / fail
 - Pull Request：待填写
 

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "date": "YYYY-MM-DD",
-  "owner": "person-1 | person-2 | owner",
+  "owner": "person-1 | person-2 | person-3 | person-4 | owner",
   "task": "short-task-name",
   "status": "pass | partial | fail",
   "pull_request": null,
