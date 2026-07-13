@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-07-13",
+  "owner": "owner",
+  "task": "repo-setup",
+  "status": "pass",
+  "pull_request": "https://github.com/aruveletton-rgb/arknights_live2d/pull/1",
+  "changed_files": [
+    "README.md"
+  ],
+  "added_files": [
+    ".github/CODEOWNERS",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    "audit/README.md",
+    "audit/templates/work_report_template.md",
+    "audit/templates/work_report_template.json",
+    "character_pack/ASSET_SOURCE_TABLE.md",
+    "docs/API_CONTRACT.md",
+    "docs/COLLABORATION_WORKFLOW.md",
+    "docs/COMPLIANCE.md",
+    "docs/PROJECT_BASELINE.md",
+    "docs/PROJECT_PLAN.md",
+    "docs/PULL_REQUEST_GUIDE.md",
+    "docs/SOURCES_AND_DECISIONS.md",
+    "docs/TEAM_RESPONSIBILITIES.md",
+    "questions/QUESTIONS.md"
+  ],
+  "deleted_files": [],
+  "tests": [
+    {
+      "name": "source-material-review",
+      "command_or_action": "render and inspect both PDFs, extract full PDF text, and read both TXT files as UTF-8",
+      "result": "pass",
+      "evidence": "all four supplied source documents were readable"
+    },
+    {
+      "name": "relative-markdown-links",
+      "command_or_action": "resolve every relative Markdown link and test its target path",
+      "result": "pass",
+      "evidence": "no missing relative link targets"
+    },
+    {
+      "name": "json-parse",
+      "command_or_action": "PowerShell ConvertFrom-Json",
+      "result": "pass",
+      "evidence": "work report template parsed successfully"
+    },
+    {
+      "name": "github-markdown-render",
+      "command_or_action": "GitHub Markdown API for README.md and docs/PULL_REQUEST_GUIDE.md",
+      "result": "pass",
+      "evidence": "both documents rendered without API errors"
+    },
+    {
+      "name": "git-diff-check",
+      "command_or_action": "git diff --cached --check",
+      "result": "pass",
+      "evidence": "no whitespace errors"
+    },
+    {
+      "name": "credential-pattern-scan",
+      "command_or_action": "scan staged files for common GitHub, OpenAI, AWS and private-key patterns",
+      "result": "pass",
+      "evidence": "no matching credential-like patterns"
+    }
+  ],
+  "not_run": [
+    "Client, backend, Live2D, TTS, ASR and server deployment tests were not run because this change contains no implementation code."
+  ],
+  "risks": [
+    "The two-person execution model still needs confirmation from person 1 and person 2.",
+    "The supplied materials describe conflicting server topologies; person 2 must test and propose a final topology."
+  ],
+  "open_items": [
+    "Pull Request #1 is not merged, so main does not yet contain these documents.",
+    "Project license, production asset authorization and upstream integration method remain undecided."
+  ],
+  "next_steps": [
+    "Repository owner reviews and decides whether to merge Pull Request #1.",
+    "Person 1 and person 2 confirm responsibilities and API_CONTRACT.md v0.1.",
+    "Create separate Phase 1 tasks for the client and backend minimum demonstrations."
+  ],
+  "changes_shared_contract": true,
+  "contains_sensitive_information": false,
+  "adds_assets_or_voices": false
+}
