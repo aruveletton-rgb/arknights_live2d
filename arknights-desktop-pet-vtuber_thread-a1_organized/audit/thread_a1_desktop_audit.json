@@ -1,0 +1,141 @@
+{
+  "thread": "thread-a-desktop",
+  "owner": "person-1",
+  "status": "partial",
+  "changed_files": [
+    "client/README.md -> upstream/Open-LLM-VTuber/client/README.md",
+    "client/package.json -> upstream/Open-LLM-VTuber/client/package.json",
+    "client/public/characters/placeholder_operator/README.md -> upstream/Open-LLM-VTuber/client/public/characters/placeholder_operator/README.md",
+    "client/src/main/index.ts -> upstream/Open-LLM-VTuber/client/src/main/index.ts",
+    "client/src/main/preload.ts -> upstream/Open-LLM-VTuber/client/src/main/preload.ts",
+    "client/src/main/tray.ts -> upstream/Open-LLM-VTuber/client/src/main/tray.ts",
+    "client/src/main/window.ts -> upstream/Open-LLM-VTuber/client/src/main/window.ts",
+    "client/src/renderer/App.tsx -> upstream/Open-LLM-VTuber/client/src/renderer/App.tsx",
+    "client/src/renderer/api/chatClient.ts -> upstream/Open-LLM-VTuber/client/src/renderer/api/chatClient.ts",
+    "client/src/renderer/api/mockChatClient.ts -> upstream/Open-LLM-VTuber/client/src/renderer/api/mockChatClient.ts",
+    "client/src/renderer/audio/AudioPlayer.ts -> upstream/Open-LLM-VTuber/client/src/renderer/audio/AudioPlayer.ts",
+    "client/src/renderer/components/ChatPanel.tsx -> upstream/Open-LLM-VTuber/client/src/renderer/components/ChatPanel.tsx",
+    "client/src/renderer/components/PetStage.tsx -> upstream/Open-LLM-VTuber/client/src/renderer/components/PetStage.tsx",
+    "client/src/renderer/components/SettingsPanel.tsx -> upstream/Open-LLM-VTuber/client/src/renderer/components/SettingsPanel.tsx",
+    "client/src/renderer/config/clientConfig.ts -> upstream/Open-LLM-VTuber/client/src/renderer/config/clientConfig.ts",
+    "client/src/renderer/config/defaultConfig.ts -> upstream/Open-LLM-VTuber/client/src/renderer/config/defaultConfig.ts",
+    "client/src/renderer/index.html -> upstream/Open-LLM-VTuber/client/src/renderer/index.html",
+    "client/src/renderer/live2d/CharacterStateMachine.ts -> upstream/Open-LLM-VTuber/client/src/renderer/live2d/CharacterStateMachine.ts",
+    "client/src/renderer/live2d/ExpressionController.ts -> upstream/Open-LLM-VTuber/client/src/renderer/live2d/ExpressionController.ts",
+    "client/src/renderer/live2d/LipSyncController.ts -> upstream/Open-LLM-VTuber/client/src/renderer/live2d/LipSyncController.ts",
+    "client/src/renderer/live2d/Live2DRenderer.ts -> upstream/Open-LLM-VTuber/client/src/renderer/live2d/Live2DRenderer.ts",
+    "client/src/renderer/live2d/MotionController.ts -> upstream/Open-LLM-VTuber/client/src/renderer/live2d/MotionController.ts",
+    "client/src/renderer/main.tsx -> upstream/Open-LLM-VTuber/client/src/renderer/main.tsx",
+    "client/src/renderer/styles.css -> upstream/Open-LLM-VTuber/client/src/renderer/styles.css",
+    "client/src/renderer/types/character.ts -> upstream/Open-LLM-VTuber/client/src/renderer/types/character.ts",
+    "client/src/renderer/types/chat.ts -> upstream/Open-LLM-VTuber/client/src/renderer/types/chat.ts",
+    "client/src/renderer/vite-env.d.ts -> upstream/Open-LLM-VTuber/client/src/renderer/vite-env.d.ts",
+    "client/tests/config.test.ts -> upstream/Open-LLM-VTuber/client/tests/config.test.ts",
+    "client/tests/mockChatClient.test.ts -> upstream/Open-LLM-VTuber/client/tests/mockChatClient.test.ts",
+    "client/tests/stateMachine.test.ts -> upstream/Open-LLM-VTuber/client/tests/stateMachine.test.ts",
+    "client/tsconfig.json -> upstream/Open-LLM-VTuber/client/tsconfig.json",
+    "client/tsconfig.main.json -> upstream/Open-LLM-VTuber/client/tsconfig.main.json",
+    "client/vite.config.ts -> upstream/Open-LLM-VTuber/client/vite.config.ts"
+  ],
+  "added_files": [
+    ".env.example",
+    "ORGANIZATION_REPORT.md",
+    "README.md",
+    "audit/source_manifest.json",
+    "audit/thread_a1_desktop_audit.json",
+    "character_pack/README.md",
+    "character_pack/backgrounds/README.md",
+    "character_pack/characters/README.md",
+    "character_pack/knowledge/README.md",
+    "character_pack/live2d-models/README.md",
+    "character_pack/live2d-models/model_dict.example.json",
+    "character_pack/live2d-models/placeholder_operator/README.md",
+    "character_pack/prompts/README.md",
+    "character_pack/voices/README.md",
+    "deploy/README.md",
+    "deploy/vm1-gateway/README.md",
+    "deploy/vm2-tts/README.md",
+    "deploy/vm3-asr/README.md",
+    "deploy/vm4-fallback/README.md",
+    "docs/API_CONTRACT.md",
+    "docs/API_CONTRACT_ALIGNMENT.md",
+    "docs/CHARACTER_PACK_GUIDE.md",
+    "docs/CLIENT_MODIFICATION_RECORD.md",
+    "docs/DESKTOP_PET_MODE.md",
+    "docs/INTEGRATION_GAP_REPORT.md",
+    "docs/LICENSE_NOTICE.md",
+    "docs/LIVE2D_IMPORT.md",
+    "docs/REPOSITORY_MAPPING.md",
+    "docs/SERVER_DEPLOYMENT.md",
+    "docs/TROUBLESHOOTING.md",
+    "docs/TTS_ASR_GUIDE.md",
+    "scripts/README.md",
+    "server/README.md",
+    "server/asr_gateway/README.md",
+    "server/common/README.md",
+    "server/orchestrator/README.md",
+    "server/tts_gateway/README.md",
+    "upstream/Open-LLM-VTuber/README_ORGANIZATION.md",
+    "upstream/Open-LLM-VTuber/client/.env.example"
+  ],
+  "deleted_files": [],
+  "tests": [
+    {
+      "name": "archive_integrity",
+      "command": "unzip -t client.zip",
+      "result": "pass"
+    },
+    {
+      "name": "source_copy_checksum",
+      "command": "compare SHA-256 in audit/source_manifest.json",
+      "result": "pass"
+    },
+    {
+      "name": "dependency_install",
+      "command": "npm install --offline --no-audit --no-fund --ignore-scripts",
+      "result": "blocked: ENOTCACHED for undici-types"
+    },
+    {
+      "name": "desktop_pet_build",
+      "command": "npm run build",
+      "result": "not_run: npm dependencies unavailable"
+    },
+    {
+      "name": "unit_tests",
+      "command": "npm run test",
+      "result": "blocked: vitest not installed"
+    },
+    {
+      "name": "static_a1_requirement_review",
+      "command": "manual code and structure inspection against project plan",
+      "result": "pass with gaps documented"
+    }
+  ],
+  "risks": [
+    "The package does not contain the full Open-LLM-VTuber upstream repository.",
+    "Current /api/chat response uses reply_text instead of the frozen text field.",
+    "Current emotion and motion enums conflict with the plan's frozen enums.",
+    "Live2DRenderer validates a URL but does not render a Cubism model.",
+    "Lip sync is randomized rather than driven by audio amplitude.",
+    "No WebSocket or automatic reconnect implementation exists.",
+    "No authorized Live2D model asset is included."
+  ],
+  "open_items": [
+    "Import or reference the actual Open-LLM-VTuber upstream repository.",
+    "Align request/response schema with docs/API_CONTRACT.md.",
+    "Align emotion/motion enums and implement neutral/idle fallbacks.",
+    "Integrate a real Live2D renderer and motion/expression controllers.",
+    "Implement audio-driven lip sync.",
+    "Implement WebSocket/wss support or formally freeze HTTP-only transport.",
+    "Add automatic reconnect and connection status UI.",
+    "Connect ASR voice input after thread C interface is available.",
+    "Run npm install, build, tests, and Windows packaging in a networked environment."
+  ],
+  "next_steps": [
+    "Merge the frozen character pack and API contract before changing client types.",
+    "Implement a compatibility adapter, then remove legacy reply_text after integration.",
+    "Complete Live2D SDK integration using authorized assets.",
+    "Run npm run selfcheck and record actual results in this audit.",
+    "Submit the package to develop only after interface conflicts are resolved."
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "source_archive": "client.zip",
+  "files": [
+    {
+      "source": "client/README.md",
+      "destination": "upstream/Open-LLM-VTuber/client/README.md",
+      "size_bytes": 3426,
+      "sha256": "85dfa24ab607edba2295966378aef6b69380b34b95613298873393ca93f680a9",
+      "destination_sha256": "85dfa24ab607edba2295966378aef6b69380b34b95613298873393ca93f680a9",
+      "byte_identical": true
+    },
+    {
+      "source": "client/package.json",
+      "destination": "upstream/Open-LLM-VTuber/client/package.json",
+      "size_bytes": 1351,
+      "sha256": "8fdedc4958b9064ca92e0e2018a66c25dca85bbeda90436463a71b1de103df21",
+      "destination_sha256": "8fdedc4958b9064ca92e0e2018a66c25dca85bbeda90436463a71b1de103df21",
+      "byte_identical": true
+    },
+    {
+      "source": "client/public/characters/placeholder_operator/README.md",
+      "destination": "upstream/Open-LLM-VTuber/client/public/characters/placeholder_operator/README.md",
+      "size_bytes": 432,
+      "sha256": "e1fa582ba6930760007de1478a935ccbd66441f15996ea74624f35bc82005cea",
+      "destination_sha256": "e1fa582ba6930760007de1478a935ccbd66441f15996ea74624f35bc82005cea",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/main/index.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/main/index.ts",
+      "size_bytes": 655,
+      "sha256": "a916b2590937203b16a7900022123dc8232c1de62ee0b88a65f9cbd8d8b5c6b5",
+      "destination_sha256": "a916b2590937203b16a7900022123dc8232c1de62ee0b88a65f9cbd8d8b5c6b5",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/main/preload.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/main/preload.ts",
+      "size_bytes": 496,
+      "sha256": "c5a74221b1fd7ff2120c1ef69d7737aed1854ea01e0b2e2386506ad7ba1ecdd5",
+      "destination_sha256": "c5a74221b1fd7ff2120c1ef69d7737aed1854ea01e0b2e2386506ad7ba1ecdd5",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/main/tray.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/main/tray.ts",
+      "size_bytes": 1181,
+      "sha256": "0b83179984d69dd05c57f965de1c7f28c10bdbd3d418e7680e78fef16d14b635",
+      "destination_sha256": "0b83179984d69dd05c57f965de1c7f28c10bdbd3d418e7680e78fef16d14b635",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/main/window.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/main/window.ts",
+      "size_bytes": 2032,
+      "sha256": "0626504306f9ea52ce5f6094404bf665f9f1a27faf7ec3eecb36c66a41cc484a",
+      "destination_sha256": "0626504306f9ea52ce5f6094404bf665f9f1a27faf7ec3eecb36c66a41cc484a",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/App.tsx",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/App.tsx",
+      "size_bytes": 5363,
+      "sha256": "c407644d55e32965a70270cf08b05a41ff6094d3f9089f1baf012701cbfafb7a",
+      "destination_sha256": "c407644d55e32965a70270cf08b05a41ff6094d3f9089f1baf012701cbfafb7a",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/api/chatClient.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/api/chatClient.ts",
+      "size_bytes": 1368,
+      "sha256": "b5faa75ad23eaeb20ab1ecf2b9d681c38e1418f8b5852a6eb00c7894e6bc39ef",
+      "destination_sha256": "b5faa75ad23eaeb20ab1ecf2b9d681c38e1418f8b5852a6eb00c7894e6bc39ef",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/api/mockChatClient.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/api/mockChatClient.ts",
+      "size_bytes": 1683,
+      "sha256": "3ae854f2c5a2742756d65292624bbef213d8d15b2fc75b3ab4bfa16c139f116b",
+      "destination_sha256": "3ae854f2c5a2742756d65292624bbef213d8d15b2fc75b3ab4bfa16c139f116b",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/audio/AudioPlayer.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/audio/AudioPlayer.ts",
+      "size_bytes": 1306,
+      "sha256": "14aded538941e84dfcb716738a89ccb19e400e22c0ed89e1f1662e8f3e68588e",
+      "destination_sha256": "14aded538941e84dfcb716738a89ccb19e400e22c0ed89e1f1662e8f3e68588e",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/components/ChatPanel.tsx",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/components/ChatPanel.tsx",
+      "size_bytes": 1699,
+      "sha256": "ffe37f7e0b16846bd1be7e349bb9906c1395f9f290f739ea69de93a5ceb9d891",
+      "destination_sha256": "ffe37f7e0b16846bd1be7e349bb9906c1395f9f290f739ea69de93a5ceb9d891",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/components/PetStage.tsx",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/components/PetStage.tsx",
+      "size_bytes": 2215,
+      "sha256": "e73cb8d5df755e41936a9beb19ec52d9c22c05a87c269a0ff9686b94734e74cd",
+      "destination_sha256": "e73cb8d5df755e41936a9beb19ec52d9c22c05a87c269a0ff9686b94734e74cd",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/components/SettingsPanel.tsx",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/components/SettingsPanel.tsx",
+      "size_bytes": 2762,
+      "sha256": "174f070b546d2393cbb70171dc86d229024c8596c6fb6172c88a245a3384e406",
+      "destination_sha256": "174f070b546d2393cbb70171dc86d229024c8596c6fb6172c88a245a3384e406",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/config/clientConfig.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/config/clientConfig.ts",
+      "size_bytes": 658,
+      "sha256": "1b8962b6277d0a6a1fa4f2218372ca71040d28fd420aa11fda481f93b6f84187",
+      "destination_sha256": "1b8962b6277d0a6a1fa4f2218372ca71040d28fd420aa11fda481f93b6f84187",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/config/defaultConfig.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/config/defaultConfig.ts",
+      "size_bytes": 783,
+      "sha256": "a557355c0b5cd799845af4f4e7ebd61a3262f0e7d05c1a5e006f9d03b585eb2e",
+      "destination_sha256": "a557355c0b5cd799845af4f4e7ebd61a3262f0e7d05c1a5e006f9d03b585eb2e",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/index.html",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/index.html",
+      "size_bytes": 306,
+      "sha256": "bde94c02271dc52f22b71dd39a38b8894812308d2c9a58fadf48552185005b7c",
+      "destination_sha256": "bde94c02271dc52f22b71dd39a38b8894812308d2c9a58fadf48552185005b7c",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/live2d/CharacterStateMachine.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/live2d/CharacterStateMachine.ts",
+      "size_bytes": 2589,
+      "sha256": "e039c58f46b6dce48f0d474365ce62385e9437be321448eeb64774500a12a67e",
+      "destination_sha256": "e039c58f46b6dce48f0d474365ce62385e9437be321448eeb64774500a12a67e",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/live2d/ExpressionController.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/live2d/ExpressionController.ts",
+      "size_bytes": 347,
+      "sha256": "9e537deffa6db19e3cdf514f05b6710ddf9ca2fc12467dcb49527d2b0dd3c5f1",
+      "destination_sha256": "9e537deffa6db19e3cdf514f05b6710ddf9ca2fc12467dcb49527d2b0dd3c5f1",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/live2d/LipSyncController.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/live2d/LipSyncController.ts",
+      "size_bytes": 604,
+      "sha256": "239658e1230d2eb49def4418a5be64b2887b28ab31074d13ff5308d457af1e22",
+      "destination_sha256": "239658e1230d2eb49def4418a5be64b2887b28ab31074d13ff5308d457af1e22",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/live2d/Live2DRenderer.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/live2d/Live2DRenderer.ts",
+      "size_bytes": 1661,
+      "sha256": "12da33b45927ac3ad11f03ef9b7862406e90c9347ee7c9bdacf7e9c9ff9382b7",
+      "destination_sha256": "12da33b45927ac3ad11f03ef9b7862406e90c9347ee7c9bdacf7e9c9ff9382b7",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/live2d/MotionController.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/live2d/MotionController.ts",
+      "size_bytes": 311,
+      "sha256": "23f2c5ee4b01737d58f41d1125c0a36e735e3c8bf4249d9b7555f962c42988ed",
+      "destination_sha256": "23f2c5ee4b01737d58f41d1125c0a36e735e3c8bf4249d9b7555f962c42988ed",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/main.tsx",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/main.tsx",
+      "size_bytes": 235,
+      "sha256": "5d6704d12ce5b34800a378c321a58b1c1411477da21c7771e5cb49db49838cf1",
+      "destination_sha256": "5d6704d12ce5b34800a378c321a58b1c1411477da21c7771e5cb49db49838cf1",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/styles.css",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/styles.css",
+      "size_bytes": 6858,
+      "sha256": "36c166e2207ba49d8e0f21db2379b64348dd167a5435d9254599bd94508d9dfd",
+      "destination_sha256": "36c166e2207ba49d8e0f21db2379b64348dd167a5435d9254599bd94508d9dfd",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/types/character.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/types/character.ts",
+      "size_bytes": 496,
+      "sha256": "989a1937169860e89f2daf20a7dc97dab4075a34973b4e5ea58695d1c8435598",
+      "destination_sha256": "989a1937169860e89f2daf20a7dc97dab4075a34973b4e5ea58695d1c8435598",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/types/chat.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/types/chat.ts",
+      "size_bytes": 779,
+      "sha256": "7ce0b5aea1316da585393fb5600dc55db1f9dd482856d4572c02bc6ac89733ac",
+      "destination_sha256": "7ce0b5aea1316da585393fb5600dc55db1f9dd482856d4572c02bc6ac89733ac",
+      "byte_identical": true
+    },
+    {
+      "source": "client/src/renderer/vite-env.d.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/src/renderer/vite-env.d.ts",
+      "size_bytes": 287,
+      "sha256": "a69c67da0133498e54d215b16c9bec69e12dab6a355db0d90b7f21a655d10b7f",
+      "destination_sha256": "a69c67da0133498e54d215b16c9bec69e12dab6a355db0d90b7f21a655d10b7f",
+      "byte_identical": true
+    },
+    {
+      "source": "client/tests/config.test.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/tests/config.test.ts",
+      "size_bytes": 1088,
+      "sha256": "4148eba45d09d2f66ddaf6e06d36767e87dd49933495e577518f1d6b4c6f77c5",
+      "destination_sha256": "4148eba45d09d2f66ddaf6e06d36767e87dd49933495e577518f1d6b4c6f77c5",
+      "byte_identical": true
+    },
+    {
+      "source": "client/tests/mockChatClient.test.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/tests/mockChatClient.test.ts",
+      "size_bytes": 950,
+      "sha256": "938ce62c398cc805185335a9f4db52a6060897c9ff9b976539965d24e7a7f87c",
+      "destination_sha256": "938ce62c398cc805185335a9f4db52a6060897c9ff9b976539965d24e7a7f87c",
+      "byte_identical": true
+    },
+    {
+      "source": "client/tests/stateMachine.test.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/tests/stateMachine.test.ts",
+      "size_bytes": 1308,
+      "sha256": "dd64ea6c09fcad5ff0b4091e1ba82dae248672a32fc5cf2b94562ea4ea5701da",
+      "destination_sha256": "dd64ea6c09fcad5ff0b4091e1ba82dae248672a32fc5cf2b94562ea4ea5701da",
+      "byte_identical": true
+    },
+    {
+      "source": "client/tsconfig.json",
+      "destination": "upstream/Open-LLM-VTuber/client/tsconfig.json",
+      "size_bytes": 525,
+      "sha256": "dd5c584364185ba40f1d1899c16ec557322f92ebab7c4f00df6a0a0f5010ab6b",
+      "destination_sha256": "dd5c584364185ba40f1d1899c16ec557322f92ebab7c4f00df6a0a0f5010ab6b",
+      "byte_identical": true
+    },
+    {
+      "source": "client/tsconfig.main.json",
+      "destination": "upstream/Open-LLM-VTuber/client/tsconfig.main.json",
+      "size_bytes": 311,
+      "sha256": "a06b56b6c7878b06a9b1d8fad6f6014a36856efff8e35057bc82099174eef53d",
+      "destination_sha256": "a06b56b6c7878b06a9b1d8fad6f6014a36856efff8e35057bc82099174eef53d",
+      "byte_identical": true
+    },
+    {
+      "source": "client/vite.config.ts",
+      "destination": "upstream/Open-LLM-VTuber/client/vite.config.ts",
+      "size_bytes": 315,
+      "sha256": "b4b3f119ef89de5f6b353385478baa64617bb60325d0de00dc5ad60f509ab166",
+      "destination_sha256": "b4b3f119ef89de5f6b353385478baa64617bb60325d0de00dc5ad60f509ab166",
+      "byte_identical": true
+    }
+  ]
+}

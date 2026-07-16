@@ -1,0 +1,26 @@
+{
+  "arknights_fan_model": {
+    "modelPath": "/characters/arknights_fan_model/model.model3.json",
+    "scale": 1.0,
+    "initialPosition": {
+      "anchor": "bottom-right",
+      "offsetX": -28,
+      "offsetY": -28
+    },
+    "defaultExpression": "neutral",
+    "emotionMap": {
+      "neutral": "neutral",
+      "smile": "smile",
+      "serious": "serious",
+      "worried": "worried",
+      "sad": "sad",
+      "surprised": "surprised",
+      "thinking": "thinking",
+      "confident": "confident"
+    },
+    "tapMotions": [
+      "greeting",
+      "nod"
+    ]
+  }
+}
