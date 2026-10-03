@@ -1,0 +1,30 @@
+# dependencies / build output
+node_modules/
+dist/
+release/
+*.log
+
+# local env & secrets (only *.example is committed)
+.env
+.env.*
+!.env.example
+*.local
+
+# Live2D: Cubism Core and models are licensed separately and must never be committed
+upstream/Open-LLM-VTuber/client/public/vendor/
+upstream/Open-LLM-VTuber/client/public/characters/*
+!upstream/Open-LLM-VTuber/client/public/characters/placeholder_operator/
+local-models/
+*.moc3
+live2dcubismcore*
+
+# python
+__pycache__/
+*.pyc
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
