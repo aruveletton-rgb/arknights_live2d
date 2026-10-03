@@ -1,0 +1,17 @@
+node_modules/
+dist/
+release/
+out/
+.env
+.env.*
+!.env.example
+temp/
+*.log
+__pycache__/
+.pytest_cache/
+.venv/
+# Live2D Cubism Core 与样例模型只放本机，不进仓库
+upstream/Open-LLM-VTuber/client/public/live2dcubismcore*.js
+upstream/Open-LLM-VTuber/client/public/lib/
+character_pack/live2d-models/*/
+!character_pack/live2d-models/placeholder_operator/
