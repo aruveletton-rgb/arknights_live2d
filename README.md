@@ -687,7 +687,7 @@ audit/final_integration_audit.json
 9. TTS 失败时可只显示字幕。
 10. ASR 失败时可切换文本输入。
 11. WebSocket 断开后可重连。
-12. 四台服务器可通过 Docker Compose 部署。
+12. 两台服务器可通过 Docker Compose 部署。
 13. 健康检查脚本可定位服务状态。
 14. 文档完整。
 15. 合规说明完整。

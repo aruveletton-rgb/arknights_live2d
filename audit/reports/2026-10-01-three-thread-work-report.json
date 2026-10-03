@@ -1,0 +1,181 @@
+{
+  "report_format": "three-thread-work-report/v2",
+  "report_date": "2026-10-01",
+  "baseline": {
+    "ref": "origin/main",
+    "commit": "b2bb0f2",
+    "last_main_commit": "2026-07-16",
+    "last_repo_activity": "2026-07-22",
+    "markdown_report": "audit/reports/2026-10-01-three-thread-work-report.md",
+    "execution_plan": "docs/EXECUTION_PLAN.md"
+  },
+  "summary": {
+    "phase": "between Phase 0 and Phase 1",
+    "overall_status": "partial",
+    "conclusion": "Only A1 has code (client prototype). A2, B and C have not started. No commits for about 10 weeks and both PRs are unreviewed. Repository positioning conflict (code repo vs info repo) must be decided first."
+  },
+  "status_enum": ["pass", "partial", "fail", "not_started", "unverified", "blocked"],
+  "repository": {
+    "findings": [
+      "main contains both a root .gitkeep skeleton and the nested arknights-desktop-pet-vtuber_thread-a1_organized/ package plus a duplicate zip.",
+      "PR #1 (docs/project-setup) positions the repo as an info/question hub with no code, conflicting with code already on main and README section 4. 0 reviews.",
+      "PR #2 (pjskkk-patch-1) deletes the zip; the zip holds 2 .env.example files (VITE_MOCK_CHAT only, no secrets) that are not in git.",
+      "develop and thread branches from README section 16 do not exist.",
+      "core.autocrlf=true and no .gitattributes; working tree is CRLF so source_manifest.json matches 0/33 in the working tree, while git blobs and zip match 33/33.",
+      "No project-level AGENTS.md or docs/PROJECT_BASELINE.md."
+    ],
+    "open_prs": [
+      {"number": 1, "branch": "docs/project-setup", "state": "OPEN", "reviews": 0, "opened": "2026-07-13"},
+      {"number": 2, "branch": "pjskkk-patch-1", "state": "OPEN", "reviews": 0, "opened": "2026-07-22"}
+    ]
+  },
+  "threads": [
+    {
+      "thread": "A",
+      "sub_thread": "A1",
+      "scope": "desktop client + Live2D",
+      "owner": "person-1",
+      "status": "partial",
+      "implemented_by_code_review": [
+        "transparent frameless always-on-top window",
+        "tray menu",
+        "text input",
+        "mock chat",
+        "HTTP POST /api/chat",
+        "audio_url / audio_base64 playback",
+        "settings persistence",
+        "character state machine"
+      ],
+      "new_findings": [
+        "npm run build fails: src/main/index.ts:22 window-all-closed handler declares an event parameter; Electron 34 types it as () => void (TS2769, TS7006).",
+        "npm test fails: vitest inherits vite root src/renderer and finds no tests; vitest run --root . passes 3 files / 6 tests.",
+        "npm run dev does not compile the main process; a fresh clone needs dist/main/index.js first (inferred from scripts, not run).",
+        "Previous npm install blocker is resolved; networked install succeeds.",
+        "Two .env.example files listed as added in the A1 audit are not in git."
+      ],
+      "known_gaps": [
+        "reply_text instead of text",
+        "emotion/motion enums conflict with frozen enums; no fallback",
+        "no WebSocket and no auto-reconnect",
+        "Live2D only checks the model URL; no rendering",
+        "random lip sync",
+        "voice input is a placeholder",
+        "model_dict not loaded",
+        "session_id hard-coded to local-user-001",
+        "default characterId operator_default differs from arknights_fan_001",
+        "default backend http://127.0.0.1:8000 differs from README section 13.6 port 12393"
+      ],
+      "blockers": ["D2", "D6"]
+    },
+    {
+      "thread": "A",
+      "sub_thread": "A2",
+      "scope": "character pack + compliance",
+      "owner": "person-2",
+      "status": "not_started",
+      "existing": ["character_pack/live2d-models/model_dict.example.json (uses frozen emotion enum)"],
+      "missing": [
+        "character_pack/characters/arknights_fan_001.yaml",
+        "5 prompt files",
+        "character_pack/ASSET_SOURCE_TABLE.md",
+        "docs/VOICE_POLICY.md",
+        "authorized Live2D model and source record"
+      ],
+      "blockers": ["D2", "D6"]
+    },
+    {
+      "thread": "B",
+      "sub_thread": "B",
+      "scope": "orchestrator + API + LLM",
+      "owner": "person-3",
+      "status": "not_started",
+      "missing": ["orchestrator", "mock LLM", "session management", "character loading", "TTS call", "degradation logic"],
+      "notes": [
+        "docs/API_CONTRACT.md is a reference draft without /api/tts, /api/asr, error object schema or auth.",
+        "Upstream Open-LLM-VTuber uses WebSocket /client-ws, which differs from the HTTP /api/chat contract."
+      ],
+      "blockers": ["D2", "D3", "D4"]
+    },
+    {
+      "thread": "C",
+      "sub_thread": "C",
+      "scope": "TTS/ASR + server deployment",
+      "owner": "person-4",
+      "status": "not_started",
+      "missing": ["tts_gateway", "asr_gateway", "4 compose files", "install_vm.sh", "healthcheck.sh", "backup_config.sh", "update_all.sh", "deployment docs"],
+      "notes": [
+        "4 x B2ats v2 (2 vCPU / 1 GiB) not verified by login.",
+        "Server topology inconsistency recorded in the 2026-07-13 audit is still open."
+      ],
+      "blockers": ["D7"]
+    }
+  ],
+  "interfaces": [
+    {"name": "POST /api/chat", "provider": "B", "consumer": "A1", "defined_in": "docs/API_CONTRACT.md", "status": "draft; client fields and enums incompatible"},
+    {"name": "GET /api/characters", "provider": "B", "consumer": "A1", "defined_in": "docs/API_CONTRACT.md", "status": "draft; not implemented"},
+    {"name": "GET /api/health", "provider": "B, C services", "consumer": "C healthcheck, A1 reconnect", "defined_in": "docs/API_CONTRACT.md", "status": "draft"},
+    {"name": "POST /api/tts", "provider": "C", "consumer": "B", "defined_in": "README section 10 only", "status": "not in contract"},
+    {"name": "POST /api/asr", "provider": "C", "consumer": "A1 or B (undecided)", "defined_in": "README section 11 only", "status": "not in contract"},
+    {"name": "character YAML", "provider": "A2", "consumer": "B", "defined_in": "README section 8 only", "status": "not frozen"},
+    {"name": "model_dict.json", "provider": "A2 + A1", "consumer": "A1", "defined_in": "example file", "status": "client does not read it"},
+    {"name": "emotion / motion enums", "provider": "A2", "consumer": "B, A1", "defined_in": "docs/API_CONTRACT.md", "status": "client conflicts"}
+  ],
+  "acceptance": [
+    {"id": "AC-01", "item": "Electron desktop pet starts", "threads": ["A1"], "status": "unverified", "evidence": "main process build fails; GUI not launched"},
+    {"id": "AC-02", "item": "connects to remote VM-1", "threads": ["A1", "B", "C"], "status": "not_started", "evidence": "no backend"},
+    {"id": "AC-03", "item": "loads Live2D model", "threads": ["A1", "A2"], "status": "fail", "evidence": "URL check only; no authorized model"},
+    {"id": "AC-04", "item": "text input gets reply", "threads": ["A1", "B"], "status": "partial", "evidence": "mock only"},
+    {"id": "AC-05", "item": "voice input gets reply", "threads": ["A1", "C", "B"], "status": "not_started", "evidence": "placeholder button"},
+    {"id": "AC-06", "item": "TTS generates and plays", "threads": ["C", "B", "A1"], "status": "partial", "evidence": "client player only"},
+    {"id": "AC-07", "item": "expression follows emotion", "threads": ["A1", "A2"], "status": "partial", "evidence": "data-* attributes only"},
+    {"id": "AC-08", "item": "motion plays", "threads": ["A1", "A2"], "status": "fail", "evidence": "no motion player"},
+    {"id": "AC-09", "item": "TTS failure shows subtitles only", "threads": ["A1", "B"], "status": "partial", "evidence": "client fallback path exists (code review)"},
+    {"id": "AC-10", "item": "ASR failure switches to text", "threads": ["A1", "C"], "status": "not_started", "evidence": ""},
+    {"id": "AC-11", "item": "reconnects after disconnect", "threads": ["A1", "B"], "status": "fail", "evidence": "manual retry only; transport pending D3"},
+    {"id": "AC-12", "item": "4 servers deploy via Docker Compose", "threads": ["C", "B"], "status": "not_started", "evidence": ""},
+    {"id": "AC-13", "item": "healthcheck locates service state", "threads": ["C"], "status": "not_started", "evidence": ""},
+    {"id": "AC-14", "item": "documentation complete", "threads": ["A1", "A2", "B", "C"], "status": "partial", "evidence": "A1 docs present; B and C placeholders"},
+    {"id": "AC-15", "item": "compliance docs complete", "threads": ["A2"], "status": "partial", "evidence": "missing VOICE_POLICY and ASSET_SOURCE_TABLE"},
+    {"id": "AC-16", "item": "non-technical user can deploy and use", "threads": ["A1", "A2", "B", "C"], "status": "not_started", "evidence": ""}
+  ],
+  "acceptance_totals": {"pass": 0, "partial": 6, "fail": 3, "not_started": 6, "unverified": 1},
+  "decisions_pending": [
+    {"id": "D1", "question": "repo positioning: code repo (README section 4) or info repo (PR #1)", "lead": "repo-owner", "confirm": ["all"], "blocks": ["all"]},
+    {"id": "D2", "question": "freeze /api/chat fields and enums as contract v1.0", "lead": "person-3", "confirm": ["person-1", "person-2", "person-4"], "blocks": ["A1 alignment", "B"]},
+    {"id": "D3", "question": "transport: HTTP + health polling, or WebSocket", "lead": "person-3", "confirm": ["person-1"], "blocks": ["AC-11"]},
+    {"id": "D4", "question": "Open-LLM-VTuber usage: backend dependency / reference only / not used", "lead": "person-3", "confirm": ["person-1"], "blocks": ["B", "A1"]},
+    {"id": "D5", "question": "ASR route: local or VM-3", "lead": "person-4", "confirm": ["person-1", "person-3"], "blocks": ["AC-05", "AC-10"]},
+    {"id": "D6", "question": "authorized Live2D model source", "lead": "person-2", "confirm": ["repo-owner"], "blocks": ["AC-03", "AC-07", "AC-08"]},
+    {"id": "D7", "question": "actual resources and network of the 4 servers", "lead": "person-4", "confirm": ["person-3"], "blocks": ["AC-12", "AC-13"]},
+    {"id": "D8", "question": "auth for the public VM-1 entry point", "lead": "person-3", "confirm": ["person-4"], "blocks": ["AC-02"]},
+    {"id": "D9", "question": "project code license", "lead": "repo-owner", "confirm": ["all"], "blocks": ["release"]}
+  ],
+  "risks": [
+    {"id": "R1", "risk": "about 10 weeks without commits; PRs unreviewed", "level": "high", "mitigation": "hold D1 decision meeting first; confirm all four members are active"},
+    {"id": "R2", "risk": "B and A1 implement separately before contract freeze, causing integration rework", "level": "high", "mitigation": "B writes no business code before D2 is frozen"},
+    {"id": "R3", "risk": "Docker + Python services may OOM on 1 GiB", "level": "medium", "mitigation": "API proxy only; compose memory limits; measure first"},
+    {"id": "R4", "risk": "no authorized model blocks AC-03/07/08", "level": "medium", "mitigation": "develop with official Live2D free sample models; replace before public release"},
+    {"id": "R5", "risk": "unauthenticated public VM-1 lets LLM quota be abused", "level": "medium", "mitigation": "shared token + HTTPS + rate limiting"},
+    {"id": "R6", "risk": "inconsistent line endings break audit checksums and add diff noise", "level": "low", "mitigation": "add .gitattributes with * text=auto eol=lf"},
+    {"id": "R7", "risk": "merging PR #2 loses 2 .env.example files", "level": "low", "mitigation": "extract them into git before deleting the zip"}
+  ],
+  "verification": [
+    {"name": "repo_state", "command": "git fetch origin --prune; git status; git log --all", "result": "pass", "detail": "clean working tree; local in sync with origin/main"},
+    {"name": "pr_state", "command": "gh pr list --state all; gh pr view", "result": "pass", "detail": "#1 and #2 OPEN, 0 reviews"},
+    {"name": "dependency_install", "command": "npm install --ignore-scripts --no-audit --no-fund (temp copy, Node 25.9.0 / npm 11.12.1)", "result": "pass", "detail": "526 packages"},
+    {"name": "main_process_build", "command": "npm run build", "result": "fail", "detail": "src/main/index.ts:22 TS2769/TS7006"},
+    {"name": "renderer_typecheck", "command": "npx tsc -p tsconfig.json --noEmit", "result": "pass", "detail": ""},
+    {"name": "renderer_bundle", "command": "npx vite build", "result": "pass", "detail": "241 kB JS"},
+    {"name": "unit_tests", "command": "npm test", "result": "fail", "detail": "No test files found"},
+    {"name": "unit_tests_root_fixed", "command": "npx vitest run --root .", "result": "pass", "detail": "3 files, 6 tests"},
+    {"name": "source_checksum", "command": "compare audit/source_manifest.json against working tree / git blob / zip", "result": "partial", "detail": "0/33 (CRLF) / 33/33 / 33/33"},
+    {"name": "zip_vs_directory", "command": "unzip -Z1 vs find", "result": "partial", "detail": "2 .env.example files only in zip"},
+    {"name": "upstream_info", "command": "read Open-LLM-VTuber README and routes.py", "result": "pass", "detail": "MIT; Live2D samples separately licensed; /client-ws, /asr, /tts-ws"}
+  ],
+  "not_run": [
+    {"item": "Electron GUI launch", "reason": "main process build fails; no interactive desktop session in this run"},
+    {"item": "npm run package", "reason": "depends on build"},
+    {"item": "server login", "reason": "no credentials or authorization in this task"}
+  ],
+  "changes_to_source": "none; temp directory deleted"
+}
