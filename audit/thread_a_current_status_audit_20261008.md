@@ -31,7 +31,7 @@
 - `npm test`：9 个测试文件、21 个测试通过。
 - `npm run build`：通过。
 - `npm run package:dev`：通过，生成 NSIS 和 portable。
-- `git diff --check`：通过。
+- `git diff --check`：代码、JSON 和客户端源文件通过；计划/报告 Markdown 保留行尾双空格硬换行，因此通用检查会报告这些文档格式提示。
 - `python -m json.tool audit/thread_a_next_step_manifest.json`：通过。
 
 最新包 SHA-256：

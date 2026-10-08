@@ -110,7 +110,7 @@
       "nsis_sha256": "0C65731C6BC51ACD107D0AB7BF00A92F4F91E59BB41305623C1D324662E66004",
       "portable_sha256": "0021DB91BCC6E96BDB4495547B0E523AD19833C52BDFC36B88D7EFCC62C2223F"
     },
-    "diff_check": "git diff --check: pass"
+    "diff_check": "code_json_and_client_sources_pass; markdown_reports_have_intentional_hard_break_whitespace_warnings"
   },
   "next_user_input": [
     "选择并提供许可明确的真实 Cubism 样例包，或提供精确下载/导入路径",
