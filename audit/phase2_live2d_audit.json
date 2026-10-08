@@ -1,0 +1,54 @@
+{
+  "report_format": "phase2-live2d-placeholder-audit-v1",
+  "audit_date": "2026-10-08",
+  "execution_window": {
+    "start": "2026-10-08",
+    "end": "2026-10-09"
+  },
+  "branch": "main",
+  "base_commit": "97f6d06237614dc43ee19a7848b3f20d5ba35cfb",
+  "status": "pass",
+  "scope": {
+    "track": "character-pack-and-live2d-placeholder",
+    "servers": ["VM-1", "VM-2"],
+    "services": ["mock-llm", "mock-tts", "mock-asr"],
+    "deferred": [
+      "formal-live2d-model",
+      "cubism-core",
+      "official-assets",
+      "real-voice-provider",
+      "windows-installer"
+    ]
+  },
+  "acceptance": [
+    {"id": "PH2-01", "status": "pass", "evidence": ["modelDict.ts validates model path, scale, anchors, mappings, motions, and placeholder flag"]},
+    {"id": "PH2-02", "status": "pass", "evidence": ["normalizeExpression falls back to neutral; normalizeMotion falls back to idle; state machine emits contract values"]},
+    {"id": "PH2-03", "status": "pass", "evidence": ["character YAML, placeholder model dictionary, and asset source table exist"]},
+    {"id": "PH2-04", "status": "pass", "evidence": ["Vite served model3 JSON and model_dict JSON with HTTP 200; DOM dataset was idle/neutral/idle"]},
+    {"id": "PH2-05", "status": "pass", "evidence": ["npm run selfcheck completed successfully; 5 files and 13 tests passed"]},
+    {"id": "PH2-06", "status": "pass", "evidence": ["dist/renderer/characters/placeholder_operator contains both JSON assets"]},
+    {"id": "PH2-07", "status": "deferred", "evidence": ["formal model authorization, license, redistribution, and package scope are not user-approved"]}
+  ],
+  "verification": [
+    {"command": "npm run selfcheck", "cwd": "upstream/Open-LLM-VTuber/client", "exit_code": 0, "summary": "TypeScript build, Vite build, and 13 Vitest tests passed"},
+    {"command": "node JSON.parse validation", "cwd": ".", "exit_code": 0, "summary": "placeholder model and both model dictionaries parsed successfully"},
+    {"command": "git diff --check", "cwd": ".", "exit_code": 0, "summary": "no whitespace errors"},
+    {"command": "Playwright open and DOM/network inspection", "cwd": ".", "exit_code": 0, "summary": "placeholder model and dictionary returned HTTP 200; expected model path and fallback datasets observed"}
+  ],
+  "console_notes": ["favicon.ico returned 404 during browser inspection; model and dictionary requests were unaffected"],
+  "deployment": {
+    "remote_vm_changes": false,
+    "client_static_build_verified": true,
+    "remote_services_reused": ["VM-1", "VM-2"]
+  },
+  "open_items": [
+    "Confirm formal Live2D model source, authorization, and license",
+    "Confirm whether Cubism Core and model assets may enter the Windows installer",
+    "Measure formal model resource size, load time, and target-device memory",
+    "Implement real Cubism rendering and audio-driven lip sync after approval"
+  ],
+  "sensitive_scan": {
+    "status": "pass",
+    "notes": "Phase 2 files contain no credentials, official assets, private addresses, or unlicensed voice samples"
+  }
+}

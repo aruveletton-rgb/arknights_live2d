@@ -1,0 +1,47 @@
+services:
+  orchestrator:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/server.Dockerfile
+      args:
+        SERVICE: orchestrator
+    environment:
+      PORT: "8000"
+      PRIMARY_TTS_URL: ${PRIMARY_TTS_URL:-http://vm2/tts}
+      PRIMARY_ASR_URL: ${PRIMARY_ASR_URL:-http://vm2/asr}
+      API_TOKEN: ${API_TOKEN:-}
+      FALLBACK_TTS_FAILURE: ${FALLBACK_TTS_FAILURE:-0}
+      MAX_CONCURRENT: "2"
+    expose:
+      - "8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    mem_limit: 360m
+    cpus: 1.0
+    restart: unless-stopped
+    networks: [mvp]
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on: [orchestrator]
+    environment:
+      VM1_DOMAIN: ${VM1_DOMAIN:-localhost}
+    ports:
+      # The host already has an unrelated nginx listener on 80/443.
+      - "18080:80"
+      - "18443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 120m
+    cpus: 0.5
+    restart: unless-stopped
+    networks: [mvp]
+
+networks:
+  mvp:
+
+volumes:
+  caddy_data:
+  caddy_config:

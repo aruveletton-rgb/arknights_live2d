@@ -1,14 +1,17 @@
 import type { CharacterExpression, CharacterMotion, CharacterPresentation, CharacterState } from "../types/character";
 import type { ChatResponse } from "../types/chat";
+import { normalizeExpression, normalizeMotion } from "./modelDict";
 
 type Listener = (presentation: CharacterPresentation) => void;
 
 const emotionToState: Partial<Record<CharacterExpression, CharacterState>> = {
-  happy: "happy",
+  smile: "happy",
   thinking: "thinking",
-  confused: "confused",
+  worried: "thinking",
   serious: "serious",
-  error: "error"
+  sad: "serious",
+  surprised: "speaking",
+  confident: "speaking"
 };
 
 export class CharacterStateMachine {
@@ -40,19 +43,19 @@ export class CharacterStateMachine {
     const nextState = emotionToState[response.emotion] ?? "speaking";
     this.set({
       state: response.audio_url || response.audio_base64 ? "speaking" : nextState,
-      expression: response.emotion,
-      motion: response.motion,
-      message: response.reply_text
+      expression: normalizeExpression(response.emotion),
+      motion: normalizeMotion(response.motion),
+      message: response.text
     });
 
     if (!response.audio_url && !response.audio_base64) {
-      this.scheduleIdle(Math.max(1200, response.duration_ms || 2200));
+      this.scheduleIdle(Math.max(1200, response.duration_ms ?? 2200));
     }
   }
 
   speakingStarted(): void {
     this.clearIdleTimer();
-    this.set({ state: "speaking", motion: "speak" });
+    this.set({ state: "speaking", motion: "idle" });
   }
 
   speakingEnded(): void {
@@ -60,7 +63,7 @@ export class CharacterStateMachine {
   }
 
   requestFailed(message: string): void {
-    this.set({ state: "error", expression: "error", motion: "alert", message });
+    this.set({ state: "error", expression: "neutral", motion: "idle", message });
     this.scheduleIdle(3000);
   }
 

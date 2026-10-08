@@ -4,7 +4,13 @@
 - 源文件：`docs/implementation/2day/{README,THREAD_A_2DAY_PLAN,THREAD_B_2DAY_PLAN,THREAD_C_2DAY_PLAN}.md`；附录来自 `docs/EXECUTION_PLAN.md`、`docs/implementation/README.md`、`docs/implementation/THREAD_{A,B,C}_IMPLEMENTATION_PLAN.md`。以后修订先改源文件，再同步本文
 - 另一份：[v1 合订本（6 周，4 台服务器）](PARALLEL_PLAN_V1_6WEEK_4VM.md)
 - 优先级：正文与附录冲突时以正文为准。附录中的四台拓扑（VM-3、VM-4）、节点名 `vm2`/`vm4`、10 月日期、工时与削减顺序、v1 演练编号均已被正文取代，只有任务实施细节（代码、命令、测试要点、审计字段）继续有效
-- 状态：草案。时间为建议值；“AI 编码代理能在 2 天内完成主要代码”这一假设未经验证，第 1 天 14:00 的 CP2 首次校验
+- 状态：历史草案，已被当前执行基线 `docs/EXECUTION_PLAN.md`（MVP v2.0）取代
+- 当前范围：本项目已审计为 2026-10-08 至 2026-10-09 的单人两日 MVP，采用 VM-1（HTTPS + orchestrator + 备用 TTS）和 VM-2（主 TTS + ASR + 健康检查），每台为 Ubuntu 22.04、2 vCPU、1 GiB，并使用 Mock LLM/TTS/ASR；本文件原有排期、CP 检查点和 AC-01 ~ AC-16 不直接作为当前验收标准
+- 保留原因：保存原始两日方案的实施细节；当前执行任务、验收编号和证据要求以 `docs/EXECUTION_PLAN.md` 为准
+
+## 当前状态同步（2026-10-08）
+
+本合订计划已降级为历史参考。第一阶段 MVP 已按单人顺序、两台 VM 和 Mock 服务完成；当前执行主线改为 `docs/EXECUTION_PLAN.md` 第 11 节的“角色包与 Live2D 占位增强”。本阶段已加入占位模型元数据、`model_dict.json` 校验、表情/动作回退和角色包来源登记；正式 Live2D、Cubism Core、官方素材、真实音色和 Windows 安装包继续保持 `deferred`，不得用本历史计划中的四人并行角色或正式模型假设替代当前审计结论。
 
 ## 第 0 部分　摘要
 

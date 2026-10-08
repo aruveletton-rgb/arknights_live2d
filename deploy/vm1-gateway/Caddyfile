@@ -1,0 +1,8 @@
+:80 {
+  reverse_proxy orchestrator:8000
+}
+
+{$VM1_DOMAIN:localhost} {
+  tls internal
+  reverse_proxy orchestrator:8000
+}

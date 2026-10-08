@@ -35,7 +35,7 @@ set VITE_MOCK_CHAT=1
 npm run dev
 ```
 
-Mock 模式不需要远端后端，但其中的情绪和动作枚举仍是客户端原型枚举，尚未与计划书冻结枚举完全一致。
+Mock 模式不需要远端后端。情绪和动作使用 `docs/API_CONTRACT.md` 冻结的合同枚举；未知值由状态机和模型字典分别回退为 `neutral` 和 `idle`。
 
 ## 5. 连接远端后端
 
@@ -51,7 +51,7 @@ http://203.0.113.10:8000
 POST <后端服务地址>/api/chat
 ```
 
-当前实现支持 HTTP/HTTPS 请求；没有 WebSocket 连接、`ws/wss` 配置或自动重连逻辑。HTTP 请求失败时会显示错误并允许手动重试。
+当前实现支持 HTTP/HTTPS 请求；没有 WebSocket 连接、`ws/wss` 配置或自动重连逻辑。HTTP 请求失败时会显示错误并允许手动重试。两台 VM 的职责和演示负载边界以 `docs/EXECUTION_PLAN.md` 第 4 节为准。
 
 ## 6. 切换角色
 
@@ -66,10 +66,12 @@ POST <后端服务地址>/api/chat
 ```bash
 npm run build
 npm run package
+# 无代码签名证书或 GitHub 下载受限时的本地开发安装包
+npm run package:dev
 ```
 
-Windows 安装包预计输出到 `client/release/`。
+Windows 安装包输出到 `client/release/`。`npm run package:dev` 使用本机 Electron 运行时并关闭可执行文件签名修改，生成未签名开发安装包；正式发布仍需代码签名证书。
 
 ## 9. 当前验收状态
 
-透明窗口、托盘、文本输入、设置持久化、HTTP 请求和音频播放代码已存在。实际 Live2D 渲染、动作/表情调用、WebSocket 重连和语音输入仍未完成。
+透明窗口、托盘、文本输入、设置持久化、HTTP 请求和音频播放代码已存在。第二阶段已完成占位模型元数据、模型字典校验及表情/动作回退；实际 Live2D 渲染、Cubism 动作调用、WebSocket 重连和真实音频口型仍未完成。

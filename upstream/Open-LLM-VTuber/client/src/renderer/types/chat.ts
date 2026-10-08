@@ -2,27 +2,25 @@ import type { CharacterExpression, CharacterMotion } from "./character";
 
 export type InputType = "text" | "voice";
 
-export interface ChatClientState {
-  current_motion: CharacterMotion;
-  language: string;
-}
-
 export interface ChatRequest {
   session_id: string;
   character_id: string;
   input_type: InputType;
   text: string;
-  audio_base64: string | null;
-  client_state: ChatClientState;
+  enable_tts: boolean;
 }
 
 export interface ChatResponse {
-  reply_text: string;
+  session_id: string;
+  character_id: string;
+  text: string;
   emotion: CharacterExpression;
   motion: CharacterMotion;
   audio_url: string | null;
   audio_base64: string | null;
-  duration_ms: number;
+  mime_type?: string;
+  duration_ms?: number;
+  error: { code: string; message: string } | null;
 }
 
 export interface ChatMessage {

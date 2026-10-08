@@ -1,0 +1,68 @@
+{
+  "report_format": "mvp-integration-audit-v1",
+  "audit_date": "2026-10-08",
+  "execution_window": {
+    "start": "2026-10-08",
+    "end": "2026-10-09"
+  },
+  "branch": "main",
+  "base_commit": "97f6d06237614dc43ee19a7848b3f20d5ba35cfb",
+  "status": "pass",
+  "scope": {
+    "vm1": ["https/caddy", "orchestrator", "fallback_mock_tts"],
+    "vm2": ["primary_mock_tts", "mock_asr", "health_check"],
+    "llm": "mock",
+    "tts": "mock",
+    "asr": "mock",
+    "deferred": ["live2d", "windows_package", "real_providers", "four_vm_topology"]
+  },
+  "acceptance": [
+    {"id":"AC-MVP-01","status":"pass","evidence":["npm run selfcheck passed with 8 tests; npm rebuild electron succeeded; Electron v34.5.8 window Arknights VTuber Pet was responsive"]},
+    {"id":"AC-MVP-02","status":"pass","evidence":["Playwright drove backend mode, sent text, observed VM-1 response; POST http://127.0.0.1:18080/api/chat returned 200"]},
+    {"id":"AC-MVP-03","status":"pass","evidence":["remote VM-1 /api/chat returned frozen contract fields"]},
+    {"id":"AC-MVP-04","status":"pass","evidence":["VM-2 TTS health and Mock WAV base64 in chat response"]},
+    {"id":"AC-MVP-05","status":"pass","evidence":["VM-2 ASR health and /api/asr returned text and confidence 1.0"]},
+    {"id":"AC-MVP-06","status":"pass","evidence":["primary TTS stop switched to mock-fallback; primary and fallback disabled returned HTTP 200 with subtitle, null audio, and TTS_UNAVAILABLE"]},
+    {"id":"AC-MVP-07","status":"pass","evidence":["client Mock ASR success returned 200; ASR stop returned 503 and UI kept text input/send available"]},
+    {"id":"AC-MVP-08","status":"pass","evidence":["primary TTS failure switched to mock-fallback and services were restored"]},
+    {"id":"AC-MVP-09","status":"pass","evidence":["VM-1 and VM-2 health endpoints and container states passed"]},
+    {"id":"AC-MVP-10","status":"pass","evidence":["both remote Compose stacks are Up"]},
+    {"id":"AC-MVP-11","status":"pass","evidence":["HTTP and https://localhost with Caddy internal CA passed; public hostname/IP certificate and token are production hardening items"]},
+    {"id":"AC-MVP-12","status":"pass","evidence":["5-minute soak: 1500 requests, 600 HTTP 200, 900 HTTP 429 BUSY, 0 other errors; P95 about 626 ms and max about 1095 ms; hard 850 MiB/85% thresholds were not exceeded; VM-1 soft reserve observed near 231 MiB"]},
+    {"id":"AC-MVP-13","status":"pass","evidence":["this Markdown and JSON report are present and aligned"]}
+  ],
+  "load_test": {
+    "concurrency": 5,
+    "rounds": 300,
+    "requests": 1500,
+    "success": 600,
+    "errors": 900,
+    "error_breakdown": {"429_BUSY": 900, "other": 0},
+    "p95_ms": 626.05,
+    "max_ms": 1095.43,
+    "sustained_5_minute": true,
+    "thresholds_exceeded": false,
+    "soft_reserve_warning": "VM-1 host available memory observed near 231 MiB, below the planned approximate 250 MiB reserve"
+  },
+  "resources": {
+    "vm1": {"memory_total_mib": 898, "memory_available_mib": 261, "soak_min_available_mib": 231, "containers": {"caddy_mib": 41.51, "orchestrator_mib": 20.71, "cpu_percent_observed": "0.00-0.63"}},
+    "vm2": {"memory_total_mib": 894, "memory_available_mib": 290, "soak_min_available_mib": 274, "containers": {"edge_mib": 18.7, "asr_mib": 17.67, "tts_mib": 16.37, "cpu_percent_observed": "0.00-0.39"}}
+  },
+  "verification": [
+    {"command":"npm install && npm rebuild electron && npm run selfcheck","result":"pass","summary":"Electron v34.5.8 installed; build and 8 tests passed"},
+    {"command":"python py_compile server/**/*.py","result":"pass","summary":"Python sources compiled"},
+    {"command":"sudo -n docker ps / docker stats --no-stream / free -m","result":"pass","summary":"both VM stacks up and below resource thresholds"},
+    {"command":"curl HTTP and HTTPS localhost health endpoints","result":"pass","summary":"HTTP and Caddy internal HTTPS health responses passed"},
+    {"command":"5 concurrent POST /api/chat for 300 rounds","result":"pass","summary":"1500 requests over 300.27 seconds: 600 success, 900 expected BUSY, 0 other errors; P95 626.05 ms; hard resource thresholds not exceeded; soft memory reserve warning recorded"},
+    {"command":"Playwright client backend and ASR success/failure flow","result":"pass","summary":"UI displayed chat response, ASR success issued 200, ASR failure displayed 503 while text entry remained usable"},
+    {"command":"Remote dual TTS failure rehearsal","result":"pass","summary":"TTS primary stopped and FALLBACK_TTS_FAILURE=1 returned TTS_UNAVAILABLE with subtitle and null audio; services restored"},
+    {"command":"git diff --check","result":"pass","summary":"no whitespace errors"}
+  ],
+  "open_items": [
+    "Configure permanent VM-to-VM private network and remove SSH forwarding",
+    "Set real VM1_DOMAIN/VM2_DOMAIN and trusted production certificates",
+    "Set non-empty API_TOKEN before public exposure",
+    "Review VM-1 memory reserve before increasing concurrency"
+  ],
+  "sensitive_scan": {"status":"pass","notes":"No IPs, subscription IDs, tokens, keys, or official assets were written to the reports."}
+}

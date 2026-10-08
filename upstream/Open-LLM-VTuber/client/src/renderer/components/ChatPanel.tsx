@@ -10,9 +10,10 @@ interface ChatPanelProps {
   onInputChange: (value: string) => void;
   onSend: () => void;
   onRetry: () => void;
+  onVoiceInput: () => void;
 }
 
-export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, onInputChange, onSend, onRetry }: ChatPanelProps) {
+export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, onInputChange, onSend, onRetry, onVoiceInput }: ChatPanelProps) {
   return (
     <section className="chat-panel no-drag">
       <div className="history">
@@ -40,7 +41,7 @@ export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, onI
           placeholder="博士，今天有什么任务？"
           disabled={busy}
         />
-        <button type="button" className="icon-button" disabled={!voiceInputEnabled || busy} title="语音输入占位">
+        <button type="button" className="icon-button" onClick={onVoiceInput} disabled={!voiceInputEnabled || busy} title="语音输入">
           <Mic size={18} />
         </button>
         <button type="button" className="send-button" onClick={onSend} disabled={busy || !input.trim()} title="发送">

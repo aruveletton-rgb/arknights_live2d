@@ -15,7 +15,7 @@ export interface ClientConfig {
 
 export const defaultConfig: ClientConfig = {
   backendBaseUrl: "http://127.0.0.1:8000",
-  characterId: "operator_default",
+  characterId: "arknights_fan_001",
   modelPath: "/characters/placeholder_operator/placeholder.model3.json",
   alwaysOnTop: true,
   characterScale: 1,

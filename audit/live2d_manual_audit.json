@@ -1,0 +1,64 @@
+{
+  "report_format": "live2d-manual-audit-v1",
+  "audit_date": "2026-10-08",
+  "service": {
+    "url": "http://127.0.0.1:5173/",
+    "title": "Arknights VTuber Pet",
+    "frontend_tcp": true,
+    "backend_url_configured": "http://127.0.0.1:8000",
+    "backend_started_in_session": false,
+    "final_mode": "Mock",
+    "final_model_path": "/characters/placeholder_operator/placeholder.model3.json"
+  },
+  "scope": {
+    "resource_track": "project-owned-placeholder-live2d",
+    "servers": ["VM-1", "VM-2"],
+    "providers": ["mock-llm", "mock-tts", "mock-asr"],
+    "deferred": ["formal-live2d-cubism", "real-audio-provider", "remote-vm-http-https", "production-load"]
+  },
+  "acceptance": [
+    {"id": "L2D-01", "item": "客户端启动与页面可操作", "status": "pass", "evidence": ["npm run dev build completed", "page title Arknights VTuber Pet", "settings and chat controls visible"]},
+    {"id": "L2D-02", "item": "占位模型配置加载", "status": "pass", "evidence": ["placeholder.model3.json HTTP 200", "model_dict.json HTTP 200"]},
+    {"id": "L2D-03", "item": "角色显示区域与占位渲染", "status": "partial", "evidence": ["operator DOM and data-model-path present", "CSS/metadata placeholder rather than Cubism runtime"]},
+    {"id": "L2D-04", "item": "默认状态", "status": "pass", "evidence": ["idle/neutral/idle observed before and after reload", "no model warning on valid path"]},
+    {"id": "L2D-05", "item": "状态、表情、动作切换", "status": "pass", "evidence": ["Mock input a produced serious/sad/encourage", "state returned to idle/neutral/idle after duration"]},
+    {"id": "L2D-06", "item": "Mock 文本对话与字幕", "status": "pass", "evidence": ["user and assistant messages remained in history", "send disabled for empty input"]},
+    {"id": "L2D-07", "item": "Mock 语音输入回填文本", "status": "pass", "evidence": ["voice button enabled after toggle", "input populated with mock phrase"]},
+    {"id": "L2D-08", "item": "音频/字幕降级", "status": "partial", "evidence": ["null audio payload kept subtitle and page usable", "real audio playback not run"]},
+    {"id": "L2D-09", "item": "后端不可达错误处理", "status": "pass", "evidence": ["ERR_CONNECTION_REFUSED observed for /api/chat", "retry error row rendered", "Mock mode restored"]},
+    {"id": "L2D-10", "item": "设置保存与刷新恢复", "status": "pass", "evidence": ["scale 1.10 applied to --pet-scale", "localStorage and reload preserved settings"]},
+    {"id": "L2D-11", "item": "无效模型路径回退", "status": "pass", "evidence": ["model warning rendered for missing path", "valid path removed warning"]},
+    {"id": "L2D-12", "item": "桌面/移动窗口布局", "status": "pass", "evidence": ["390x844 and 1280x800 had no document overflow"]},
+    {"id": "L2D-13", "item": "合同外情绪/动作回退", "status": "pass", "evidence": ["selfcheck modelDict and stateMachine tests passed", "neutral/idle fallback contract"]},
+    {"id": "L2D-14", "item": "真实 HTTP/HTTPS LLM、TTS、ASR 联调", "status": "not_run", "evidence": ["frontend service only in this session", "VM-1/VM-2 and port 8000 were not started"]},
+    {"id": "L2D-15", "item": "正式 Live2D/Cubism 与音频口型", "status": "deferred", "evidence": ["user-approved placeholder-only scope", "no formal model or Cubism distribution approval"]},
+    {"id": "L2D-16", "item": "两台 VM 生产部署和负载验收", "status": "not_run", "evidence": ["no remote VM or Compose operation in this audit", "no resource peak or concurrency measurement"]}
+  ],
+  "verification": [
+    {"command": "npm run dev", "cwd": "upstream/Open-LLM-VTuber/client", "status": "pass", "summary": "Vite ready on 127.0.0.1:5173 and Electron started"},
+    {"command": "Playwright open/snapshot/eval/requests", "cwd": ".", "status": "pass", "summary": "UI flows, model resources, settings, fallback and layout inspected"},
+    {"command": "npm run selfcheck", "cwd": "upstream/Open-LLM-VTuber/client", "status": "pass", "summary": "build succeeded; 5 test files and 13 tests passed"},
+    {"command": "Test-NetConnection 127.0.0.1 -Port 5173", "cwd": ".", "status": "pass", "summary": "TcpTestSucceeded=True"},
+    {"command": "git diff --check", "cwd": ".", "status": "pass", "summary": "no whitespace errors"}
+  ],
+  "final_dom": {
+    "state": "idle",
+    "expression": "neutral",
+    "motion": "idle",
+    "model_path": "/characters/placeholder_operator/placeholder.model3.json",
+    "model_warning": null,
+    "viewport_checks": [
+      {"width": 390, "height": 844, "scroll_width": 390, "client_width": 390, "scroll_height": 844, "client_height": 844},
+      {"width": 1280, "height": 800, "scroll_width": 1280, "client_width": 1280, "scroll_height": 800, "client_height": 800}
+    ]
+  },
+  "console_notes": [
+    "React DevTools development notice",
+    "favicon.ico returned 404",
+    "backend /api/chat returned net::ERR_CONNECTION_REFUSED during intentional failure-path test"
+  ],
+  "sensitive_scan": {
+    "status": "pass",
+    "notes": "Report contains no public IP, subscription id, token, cookie, password, or private key"
+  }
+}

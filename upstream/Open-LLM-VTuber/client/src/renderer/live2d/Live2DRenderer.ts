@@ -1,4 +1,5 @@
 import type { CharacterPresentation } from "../types/character";
+import { loadModelDict, mapExpression, mapMotion, type ModelDictEntry } from "./modelDict";
 
 export interface Live2DRendererOptions {
   modelPath: string;
@@ -13,6 +14,7 @@ export interface Live2DRenderStatus {
 
 export class Live2DRenderer {
   private status: Live2DRenderStatus;
+  private modelDict: ModelDictEntry | null = null;
 
   constructor(private readonly root: HTMLElement, options: Live2DRendererOptions) {
     this.status = { loaded: false, error: null, modelPath: options.modelPath };
@@ -26,6 +28,10 @@ export class Live2DRenderer {
     try {
       const response = await fetch(modelPath, { method: "GET" });
       if (!response.ok) throw new Error(`model config ${response.status}`);
+      const model = await response.json() as { type?: string };
+      if (model.type !== "placeholder-live2d") throw new Error("unsupported model format");
+      const dictPath = modelPath.replace(/\/[^/]+$/, "/model_dict.json");
+      this.modelDict = await loadModelDict(dictPath);
       this.status = { loaded: true, error: null, modelPath };
     } catch {
       this.status = {
@@ -39,8 +45,8 @@ export class Live2DRenderer {
 
   update(presentation: CharacterPresentation): void {
     this.root.dataset.state = presentation.state;
-    this.root.dataset.motion = presentation.motion;
-    this.root.dataset.expression = presentation.expression;
+    this.root.dataset.motion = mapMotion(this.modelDict, presentation.motion);
+    this.root.dataset.expression = mapExpression(this.modelDict, presentation.expression);
     this.root.style.setProperty("--lip-level", String(presentation.lipSyncLevel));
   }
 

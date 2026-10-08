@@ -1,0 +1,48 @@
+{
+  "report_format": "current-content-validation-audit-v1",
+  "audit_date": "2026-10-08",
+  "repository": "git@github.com:aruveletton-rgb/arknights_live2d.git",
+  "branch": "main",
+  "remote_sync": {
+    "fetch": "pass",
+    "tracking": "origin/main",
+    "ahead_commits_before_new_commit": 3,
+    "behind_commits_before_new_commit": 0,
+    "diverged": false,
+    "push_target": "origin/main"
+  },
+  "included_roots": ["README.md", "docs", "server", "deploy", "scripts", "character_pack", "upstream/Open-LLM-VTuber/client", "audit"],
+  "excluded_paths": [".playwright-cli/"],
+  "checks": [
+    {"id": "VALID-01", "item": "客户端构建", "status": "pass", "evidence": "npm run selfcheck: tsc and Vite build succeeded"},
+    {"id": "VALID-02", "item": "客户端测试", "status": "pass", "evidence": "5 test files and 13 tests passed"},
+    {"id": "VALID-03", "item": "VM-1 Compose", "status": "pass", "evidence": "docker compose config -q succeeded"},
+    {"id": "VALID-04", "item": "VM-2 Compose", "status": "pass", "evidence": "docker compose config -q succeeded"},
+    {"id": "VALID-05", "item": "开发环境校验", "status": "pass", "evidence": "validate_deployment.py --allow-example succeeded without secret output"},
+    {"id": "VALID-06", "item": "审计 JSON 解析", "status": "pass", "evidence": "7 JSON audit files parsed successfully"},
+    {"id": "VALID-07", "item": "空白错误", "status": "pass", "evidence": "git diff --check returned no errors"},
+    {"id": "VALID-08", "item": "敏感信息检查", "status": "pass", "evidence": "no private key, actual token, password, or public address found; example field names were reviewed"}
+  ],
+  "scope": {
+    "live2d": "project-owned-placeholder",
+    "tts_asr": "mock",
+    "topology": "two-vm",
+    "remote_production_deployment": "not_verified_by_this_audit"
+  },
+  "bundle": {
+    "path": "audit/live2d_content_audit_bundle_2026-10-08.zip",
+    "entries": [
+      "current_content_audit.md",
+      "current_content_audit.json",
+      "live2d_manual_audit.md",
+      "live2d_manual_audit.json",
+      "final_integration_audit.md",
+      "final_integration_audit.json",
+      "phase2_live2d_audit.md",
+      "phase2_live2d_audit.json",
+      "phase3_hardening_audit.md",
+      "phase3_hardening_audit.json"
+    ],
+    "excludes": [".playwright-cli/", "secrets", "real-server-addresses", "build-cache"]
+  }
+}

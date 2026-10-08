@@ -19,8 +19,8 @@ app.on("ready", () => {
   });
 });
 
-app.on("window-all-closed", (event) => {
-  event.preventDefault();
+app.on("window-all-closed", () => {
+  // Keep the tray process alive after the frameless window is closed.
 });
 
 app.on("before-quit", () => {

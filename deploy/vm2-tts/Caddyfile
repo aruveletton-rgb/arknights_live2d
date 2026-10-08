@@ -1,0 +1,25 @@
+:80 {
+  handle_path /tts/* {
+    reverse_proxy tts:8082
+  }
+
+  handle_path /asr/* {
+    reverse_proxy asr:8083
+  }
+
+  respond 404
+}
+
+{$VM2_DOMAIN:localhost} {
+  tls internal
+
+  handle_path /tts/* {
+    reverse_proxy tts:8082
+  }
+
+  handle_path /asr/* {
+    reverse_proxy asr:8083
+  }
+
+  respond 404
+}

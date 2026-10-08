@@ -1,0 +1,41 @@
+{
+  "report_format": "phase3-hardening-audit-v1",
+  "audit_date": "2026-10-08",
+  "branch": "main",
+  "status": "partial",
+  "scope": {
+    "servers": ["VM-1", "VM-2"],
+    "client_artifact": "unsigned-development-installer",
+    "remote_mutations": false
+  },
+  "acceptance": [
+    {"id": "PH3-01", "status": "pass", "evidence": ["npm run package:dev generated release/Arknights VTuber Pet Setup 0.1.0.exe"]},
+    {"id": "PH3-02", "status": "pass", "evidence": ["packaged win-unpacked executable started successfully and was then stopped"]},
+    {"id": "PH3-03", "status": "pass", "evidence": ["VM-1 and VM-2 docker compose config both exited 0"]},
+    {"id": "PH3-04", "status": "pass", "evidence": ["development example environment passed validation without printing secrets"]},
+    {"id": "PH3-05", "status": "pass", "evidence": ["10 Python files compiled successfully"]},
+    {"id": "PH3-06", "status": "not_run", "evidence": ["real token, domains, and VM-2 URL are not available; placeholder production configuration was rejected as designed"]},
+    {"id": "PH3-07", "status": "deferred", "evidence": ["Azure VNet/NSG/DNS/certificate changes were not authorized"]},
+    {"id": "PH3-08", "status": "deferred", "evidence": ["no code signing certificate was provided; artifact is explicitly unsigned development output"]}
+  ],
+  "artifact": {
+    "path": "upstream/Open-LLM-VTuber/client/release/Arknights VTuber Pet Setup 0.1.0.exe",
+    "sha256": "2B0023CD0E1754872927621CF1DA7F977E330C8230C38C5ED18D5002E33DEC1A",
+    "bytes": 91930855,
+    "signature": "NotSigned"
+  },
+  "verification": [
+    {"command": "npm run package:dev", "result": "pass", "summary": "Vite build, local Electron packaging, NSIS build completed"},
+    {"command": "launch release/win-unpacked/Arknights VTuber Pet.exe", "result": "pass", "summary": "process started and was stopped after startup check"},
+    {"command": "docker compose config for both stacks", "result": "pass", "summary": "both configurations parsed with exit code 0"},
+    {"command": "validate_deployment.py --allow-example", "result": "pass", "summary": "development examples accepted without secret output"},
+    {"command": "validate_deployment.py --production on examples", "result": "expected-fail", "summary": "exit code 1 for empty token, localhost domains, and placeholder URLs"},
+    {"command": "Python compile check", "result": "pass", "summary": "10 project Python files compiled"}
+  ],
+  "open_items": [
+    "Provide real domain, VM-2 reachable URL, and owner-managed token before production validation",
+    "Authorize and configure Azure network/DNS/certificate changes if production exposure is required",
+    "Provide code signing certificate for release installer"
+  ],
+  "sensitive_scan": {"status": "pass", "notes": "No credentials or production endpoints were added"}
+}

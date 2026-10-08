@@ -1,0 +1,7 @@
+character_id: arknights_fan_001
+display_name: Rhodes Island style fan desktop pet
+model_id: placeholder_operator
+prompt_id: arknights_fan_default
+voice_policy: mock_only
+asset_status: dev_only
+notes: Original CSS placeholder only; no official game assets or voice likeness are included.

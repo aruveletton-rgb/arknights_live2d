@@ -1,0 +1,31 @@
+{
+  "modelPath": "/characters/placeholder_operator/placeholder.model3.json",
+  "scale": 1.0,
+  "initialPosition": {
+    "anchor": "bottom-right",
+    "offsetX": -28,
+    "offsetY": -28
+  },
+  "defaultExpression": "neutral",
+  "emotionMap": {
+    "neutral": "neutral",
+    "smile": "smile",
+    "serious": "serious",
+    "worried": "worried",
+    "sad": "sad",
+    "surprised": "surprised",
+    "thinking": "thinking",
+    "confident": "confident"
+  },
+  "motionMap": {
+    "idle": "idle",
+    "greeting": "greeting",
+    "nod": "nod",
+    "shake": "shake",
+    "think": "think",
+    "encourage": "encourage",
+    "battle_ready": "battle_ready"
+  },
+  "tapMotions": ["greeting", "nod"],
+  "placeholder": true
+}

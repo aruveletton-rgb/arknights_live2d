@@ -1,0 +1,58 @@
+services:
+  tts:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/server.Dockerfile
+      args:
+        SERVICE: tts_gateway
+    environment:
+      PORT: "8082"
+      SERVICE_NAME: tts_gateway
+      MOCK_FAILURE: ${TTS_MOCK_FAILURE:-0}
+    expose:
+      - "8082"
+    mem_limit: 180m
+    cpus: 0.75
+    restart: unless-stopped
+    networks: [mvp]
+
+  asr:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/server.Dockerfile
+      args:
+        SERVICE: asr_gateway
+    environment:
+      PORT: "8083"
+      SERVICE_NAME: asr_gateway
+      MOCK_FAILURE: ${ASR_MOCK_FAILURE:-0}
+    expose:
+      - "8083"
+    mem_limit: 140m
+    cpus: 0.5
+    restart: unless-stopped
+    networks: [mvp]
+
+  edge:
+    image: caddy:2-alpine
+    depends_on: [tts, asr]
+    environment:
+      VM2_DOMAIN: ${VM2_DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 90m
+    cpus: 0.25
+    restart: unless-stopped
+    networks: [mvp]
+
+networks:
+  mvp:
+
+volumes:
+  caddy_data:
+  caddy_config:

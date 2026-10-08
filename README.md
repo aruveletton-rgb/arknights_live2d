@@ -18,7 +18,7 @@
 4. 桌宠可调用 LLM 生成符合角色设定的回复。
 5. 桌宠可通过 TTS 播放语音。
 6. Live2D 可根据回复内容切换表情和动作。
-7. 后端可部署到 4 台轻量服务器上。
+7. 后端当前按两台轻量服务器部署；四台拓扑仅保留为历史扩展方案。
 8. 服务异常时具备降级能力，不让桌宠直接崩溃。
 9. 项目结构清晰，方便后续替换角色包、音色、模型和服务器配置。
 
@@ -37,8 +37,7 @@
 远端服务器
   ├─ VM-1：Gateway + Orchestrator
   ├─ VM-2：TTS Primary
-  ├─ VM-3：ASR Gateway
-  └─ VM-4：Fallback + Backup + Healthcheck
+  └─ VM-2：主 TTS + ASR + 健康检查（备用 TTS 在 VM-1）
 ```
 
 交互流程：
@@ -88,7 +87,7 @@ TTS / ASR 网关
 * `server/orchestrator` 负责对话编排、LLM 调用、会话状态。
 * `server/tts_gateway` 负责语音合成。
 * `server/asr_gateway` 负责语音识别。
-* `deploy` 负责 4 台服务器部署。
+* `deploy` 负责当前两台服务器部署；历史 VM-3/VM-4 目录不参与当前验收。
 * `docs` 负责部署、使用、合规和故障排查文档。
 
 ---
@@ -150,10 +149,10 @@ arknights-desktop-pet-vtuber/
 
 ## 5. 服务器规划
 
-当前规划使用 4 台轻量服务器：
+当前执行规划使用 2 台轻量服务器：
 
 ```text
-4 × Standard B2ats v2
+2 × Standard B2ats v2
 每台：2 vCPU / 1 GiB 内存
 ```
 
@@ -164,9 +163,9 @@ arknights-desktop-pet-vtuber/
 | 服务器  | 角色                     | 职责                                  |
 | ---- | ---------------------- | ----------------------------------- |
 | VM-1 | Gateway + Orchestrator | 统一入口、WebSocket/API、角色 Prompt、LLM 编排 |
-| VM-2 | TTS Primary            | 主语音合成服务、音频缓存                        |
-| VM-3 | ASR Gateway            | 语音识别网关或云端 ASR 代理                    |
-| VM-4 | Fallback + Backup      | 备用 TTS、健康检查、配置备份、日志备份               |
+| VM-2 | TTS Primary + ASR      | 主 Mock TTS、Mock ASR、健康检查                  |
+
+VM-1 同时运行备用 Mock TTS。真实供应商、本地模型和四 VM 扩展均为后续审计项。
 
 ---
 
@@ -390,7 +389,7 @@ POST /api/tts
 适合统一部署和集中管理。
 
 ```text
-本地上传音频到 VM-3，VM-3 调用云端 ASR 或轻量 ASR 服务。
+本地请求 VM-2 的 Mock ASR，失败时回到客户端文本输入；真实云 ASR 后续接入。
 ```
 
 接口：
@@ -413,7 +412,7 @@ POST /api/asr
 
 ## 12. LLM 策略
 
-当前 4 台服务器配置较低，不建议部署本地大模型。
+当前 2 台服务器配置较低，不建议部署本地大模型。
 
 推荐方案：
 
@@ -494,10 +493,10 @@ cd deploy/vm2-tts
 docker compose up -d
 ```
 
-### 13.5 启动 ASR 服务
+### 13.5 ASR 已由 VM-2 Compose 启动
 
 ```bash
-cd deploy/vm3-asr
+cd deploy/vm2-tts
 docker compose up -d
 ```
 
@@ -519,7 +518,7 @@ https://your-vm1-domain.example.com
 
 ---
 
-## 14. 4 台服务器部署流程
+## 14. 两台服务器部署流程
 
 ### VM-1：Gateway + Orchestrator
 
@@ -533,22 +532,6 @@ docker compose up -d
 
 ```bash
 cd deploy/vm2-tts
-cp .env.example .env
-docker compose up -d
-```
-
-### VM-3：ASR Gateway
-
-```bash
-cd deploy/vm3-asr
-cp .env.example .env
-docker compose up -d
-```
-
-### VM-4：Fallback + Backup
-
-```bash
-cd deploy/vm4-fallback
 cp .env.example .env
 docker compose up -d
 ```
@@ -578,7 +561,7 @@ ASR 失败
   → 切换到文本输入
 
 VM-2 TTS 失败
-  → 切换 VM-4 fallback TTS
+  → 切换 VM-1 fallback TTS
 
 WebSocket 断开
   → 客户端自动重连
@@ -678,15 +661,15 @@ audit/final_integration_audit.json
 ```text
 1. 本地 Electron 桌宠可启动。
 2. 桌宠可连接远端 VM-1。
-3. 桌宠可加载 Live2D 模型。
-4. 用户文本输入可获得角色回复。
-5. 用户语音输入可获得角色回复。
-6. TTS 可生成并播放语音。
-7. Live2D 可根据 emotion 切换表情。
-8. Live2D 可根据 motion 播放动作。
+3. 桌宠可加载项目自有占位模型元数据；正式 Live2D 需授权后接入。
+4. 用户文本输入可获得 Mock 角色回复。
+5. 用户语音输入可通过 Mock ASR 获得文本并继续对话。
+6. Mock TTS 可生成并播放测试语音。
+7. 客户端可根据 emotion 映射占位表情状态。
+8. 客户端可根据 motion 映射占位动作状态。
 9. TTS 失败时可只显示字幕。
 10. ASR 失败时可切换文本输入。
-11. WebSocket 断开后可重连。
+11. HTTP 请求失败时保留文本输入和手动重试；WebSocket 重连为后续项。
 12. 两台服务器可通过 Docker Compose 部署。
 13. 健康检查脚本可定位服务状态。
 14. 文档完整。
@@ -723,7 +706,7 @@ character_pack/ASSET_SOURCE_TABLE.md
 
 ## 20. 常见问题
 
-### Q1：这 4 台服务器能不能跑大语言模型？
+### Q1：这 2 台服务器能不能跑大语言模型？
 
 不建议。每台服务器只有 2 vCPU / 1 GiB 内存，更适合做网关、TTS/ASR API 代理、缓存、健康检查和轻量编排。
 
@@ -748,35 +731,24 @@ character_pack/ASSET_SOURCE_TABLE.md
 ## 21. 后续开发路线
 
 ```text
-Phase 1：跑通 Open-LLM-VTuber 桌宠模式
-Phase 2：接入远端 VM-1 后端
-Phase 3：接入 VM-2 TTS Gateway
-Phase 4：接入 VM-3 ASR Gateway
-Phase 5：接入 VM-4 fallback 和 healthcheck
-Phase 6：接入明日方舟风格角色包
-Phase 7：优化 Live2D 表情、动作和语音体验
-Phase 8：完善部署文档、合规文档和最终审计报告
+Phase 1：两台 VM Mock MVP（已完成）
+Phase 2：角色包与 Live2D 占位增强（已完成）
+Phase 3：部署硬化和 Windows 未签名开发包（已完成；生产门禁待真实配置）
+Phase 4：正式 Live2D、真实供应商或四 VM 扩展（经用户审计后再启用）
 ```
 
 ---
 
 ## 22. 当前状态
 
-当前项目处于设计和任务拆分阶段。
+当前项目已完成两台 VM Mock MVP、占位角色增强和开发安装包；正式模型、真实供应商和生产云配置保持审计后置。
 
 待完成：
 
 ```text
-1. 初始化仓库结构
-2. 引入 Open-LLM-VTuber
-3. 编写 API_CONTRACT.md
-4. 创建 character_pack 初版
-5. 创建 orchestrator 初版
-6. 创建 tts_gateway 初版
-7. 创建 asr_gateway 初版
-8. 创建 4 台服务器部署模板
-9. 创建桌宠启动文档
-10. 完成第一次集成测试
+1. 提供真实域名、VM-2 可达地址和非空令牌后完成生产门禁
+2. 如需发布，提供代码签名证书并进行干净机器安装验收
+3. 如需正式 Live2D 或真实 TTS/ASR，先提交授权、成本和资源审计
 ```
 
 ---

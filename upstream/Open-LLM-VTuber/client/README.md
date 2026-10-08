@@ -1,6 +1,6 @@
 # Arknights VTuber Desktop Pet Client
 
-This client is the desktop-pet presentation layer for an Arknights-style VTuber based on Open-LLM-VTuber backends. It owns the transparent desktop window, tray menu, character stage, state machine, text entry, settings persistence, `/api/chat` calls, Mock demo mode, and audio playback.
+This client is the desktop-pet presentation layer for the MVP backend. It owns the transparent desktop window, tray menu, placeholder character stage, state machine, text entry, settings persistence, `/api/chat` and `/api/asr` calls, Mock demo mode, and audio playback.
 
 ## Requirements
 
@@ -28,6 +28,8 @@ The Electron window starts transparent, frameless, always on top, and near the l
 ```bash
 npm run build
 npm run package
+# 本地 Electron 运行时和无签名开发安装包
+npm run package:dev
 ```
 
 The Windows installer is emitted under `client/release/`.
@@ -46,7 +48,7 @@ set VITE_MOCK_CHAT=1
 npm run dev
 ```
 
-The top-right badge shows `Mock` when the UI is using local responses. Mock data covers `happy`, `thinking`, `confused`, `serious`, and `error`.
+The top-right badge shows `Mock` when the UI is using local responses. Mock data uses the frozen contract values `smile`, `thinking`, `worried`, `serious`, and `sad`.
 
 ## Backend Integration
 
@@ -59,7 +61,7 @@ POST /api/chat
 Set `后端服务地址` in the settings panel, for example:
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:18080
 ```
 
 The client sends:
@@ -67,14 +69,10 @@ The client sends:
 ```json
 {
   "session_id": "local-user-001",
-  "character_id": "operator_default",
+  "character_id": "arknights_fan_001",
   "input_type": "text",
   "text": "博士，今天有什么任务？",
-  "audio_base64": null,
-  "client_state": {
-    "current_motion": "idle",
-    "language": "zh-CN"
-  }
+  "enable_tts": true
 }
 ```
 
@@ -82,16 +80,20 @@ Expected response:
 
 ```json
 {
-  "reply_text": "博士，今天的任务已经整理好了。",
-  "emotion": "happy",
-  "motion": "nod",
-  "audio_url": "https://example.com/audio/reply.wav",
-  "audio_base64": null,
-  "duration_ms": 3200
+  "session_id": "local-user-001",
+  "character_id": "arknights_fan_001",
+  "text": "博士，我收到你的消息了：博士，今天有什么任务？",
+  "emotion": "smile",
+  "motion": "idle",
+  "audio_url": null,
+  "audio_base64": "...",
+  "mime_type": "audio/wav",
+  "duration_ms": 180,
+  "error": null
 }
 ```
 
-`reply_text`, `emotion`, `motion`, and audio fields drive the character state machine. Request errors move the character to `error` and keep the client running.
+When `启用语音输入` is enabled, the MVP sends a Mock ASR fixture to `POST /api/asr` and places the returned text into the input box. If ASR returns 503, the error is shown and text input remains available. `text`, `emotion`, `motion`, and audio fields drive the character state machine. Request errors move the character to `error` and keep the client running.
 
 ## Replace The Live2D Model
 
@@ -107,7 +109,7 @@ Then set `角色模型路径` to the model config path:
 /characters/<character_name>/<model>.model3.json
 ```
 
-The current renderer validates that the model config can be loaded and falls back to the built-in placeholder if assets are missing. A production Live2D SDK/Pixi renderer can be added behind `src/renderer/live2d/Live2DRenderer.ts` without changing the rest of the app.
+The current renderer validates the model config and adjacent `model_dict.json`, maps contract expressions and motions, and falls back to the built-in placeholder if assets are missing. A production Live2D SDK/Pixi renderer can be added behind `src/renderer/live2d/Live2DRenderer.ts` after authorization.
 
 ## Tests And Self Check
 
@@ -121,6 +123,7 @@ Covered areas:
 - Character state machine transitions
 - Mock response coverage
 - Config persistence
+- Model dictionary validation and runtime emotion/motion fallback
 
 ## Troubleshooting
 

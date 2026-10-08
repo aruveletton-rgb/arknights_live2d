@@ -1,169 +1,299 @@
-# 执行计划书（v1.1，2026-10-01）
+# 整体执行计划书（MVP v2.0，已审计）
 
-- 另有 2 天版（2 台服务器、不设工时上限）：[`docs/implementation/2day/README.md`](implementation/2day/README.md)。按 2 天执行时，排期、拓扑、演练以 2 天版为准，本文任务 ID 和验收标准继续有效（AC-12 文字由“四台”改为“两台”）
-- v1.1 变更：新增 B-10（`/api/asr` 代理，原计划没有任务归属）。三线程实施计划见 `docs/implementation/`
-- 依据：`audit/reports/2026-10-01-three-thread-work-report.md`（下称“工作报告”）
-- 范围：从当前状态推进到 README §18 的 16 项验收全部有证据
-- 日期为建议值，需在 D1 决策会上确认；人员按 1–4 号编号
+- 审计日期：2026-10-07
+- 执行窗口：2026-10-08 至 2026-10-09
+- 当前状态：第一阶段 MVP 关键链路、Electron 启动、客户端 ASR/TTS 回退和 5 分钟压力已完成验证；最终审计为 pass，正式 VM 私网互通、公网令牌配置和 VM-1 内存预留优化列为后续硬化
+- 计划性质：当前唯一执行基线
+- 历史参考：`docs/plans/PARALLEL_PLAN_2DAY_2VM.md`、`docs/plans/PARALLEL_PLAN_V1_6WEEK_4VM.md`
 
-## 1. 目标与假设
+## 1. 审计结论
 
-目标：2026-11-13 前完成一次四服务器部署的完整演示，并提交 `audit/final_integration_audit.{md,json}`。
+以下决策已由项目用户确认，直接作为本计划约束：
 
-假设（任一不成立需要重排计划）：
-
-1. 四人仍在岗，每人每周约可投入 10 小时。
-2. D1 选“代码仓库”方案（与 README §4 和 `main` 现状一致）。若选“说明仓库”，G-02 改为“新建实现仓库并迁出 A1 包”，其余任务不变，只是换仓库执行。
-3. LLM、TTS、ASR 全部走外部 API 或 Mock，四台服务器只跑轻量网关。
-4. 开发期使用 Live2D 官方免费样例模型，不提交进公开仓库；正式模型由 D6 决定。
-
-## 2. 阶段与里程碑
-
-| 阶段 | 日期 | 内容 | 出口条件 |
-| --- | --- | --- | --- |
-| S0 治理 | 10-08 ~ 10-12 | D1、D9 决策；仓库整理 | 仓库结构唯一；`develop` 与线程分支建立；PR #1、#2 有结论 |
-| S1 合同冻结 | 10-13 ~ 10-15 | D2、D3、D4、D5、D8 | `docs/API_CONTRACT.md` v1.0 合并，四人在 PR 中确认 |
-| S2 并行最小演示 | 10-13 ~ 10-26 | 四条子线各自独立可演示 | 本线程任务验证点通过，提交线程审计 |
-| S3 第一次集成 | 10-27 ~ 11-02 | 按顺序合入 `develop`，本机全链路 | IT-01 ~ IT-08 通过 |
-| S4 四服务器验证 | 11-03 ~ 11-09 | 实际部署与故障演练 | 部署检查、故障切换、回滚演练通过 |
-| S5 最终验收 | 11-10 ~ 11-13 | AC-01 ~ AC-16 逐项取证 | 最终审计提交，`develop` → `main` |
-
-关键路径：D1 → D2 → B-02 / A1-04 → S3 → S4 → S5。D6（模型来源）是第二条关键路径，最晚 10-19 确定，否则 AC-03、07、08 顺延。
-
-S1 与 S2 重叠：合同冻结前，各线程只做依赖列为“无”的任务。
-
-## 3. S0 治理任务
-
-| ID | 任务 | 负责 | 依赖 | 验证点 |
-| --- | --- | --- | --- | --- |
-| G-01 | 召开决策会：D1、D9，确认四人在岗和每周投入 | 拥有者 | 无 | 结论写入 PR，四人确认 |
-| G-02 | 用 `git mv` 把 thread-a1 包迁到根目录统一结构；删 zip 前先提取 2 个 `.env.example` | 1 号 | G-01 | 不再有嵌套包；manifest 33/33；zip 已删 |
-| G-03 | 加 `.gitattributes`（`* text=auto eol=lf`）和 `.editorconfig`，执行 renormalize | 1 号 | G-02 | 工作区 manifest 33/33 |
-| G-04 | PR #1：按 D1 结论挑出协作文档（职责、合规、PR 指南）另行合并，或关闭。直接合并会用说明仓库版本覆盖 README | 拥有者 | G-01 | PR 已合并或关闭，并写明理由 |
-| G-05 | PR #2：G-02 完成后关闭（已被取代） | 拥有者 | G-02 | PR 已关闭 |
-| G-06 | 建 `develop` 和 4 个线程分支；`main`、`develop` 开启分支保护 | 拥有者 | G-02 | `git ls-remote` 可见；保护生效 |
-| G-07 | 写项目级 `AGENTS.md`：目标、范围、命令、交付标准 | 拥有者 | G-01 | 已合并 |
-| G-08 | GitHub Actions（windows-latest）：A1 build + test；B、C 就绪后加入 | 1 号 | G-02、A1-01 | PR 上 CI 通过 |
-
-## 4. 线程 A：客户端与角色包
-
-### 4.1 A1（1 号）
-
-| ID | 任务 | 依赖 | 验证点 |
-| --- | --- | --- | --- |
-| A1-01 | 修构建：`index.ts:22` 去掉 `event` 参数；为 vitest 单独指定 root；`dev` 脚本先编译主进程 | 无 | `npm run build`、`npm test` 通过；全新克隆 `npm run dev` 能弹出窗口 |
-| A1-02 | 实测桌宠窗口：透明、置顶、拖动、托盘、关窗后不退出 | A1-01 | 截图和操作记录写入审计 |
-| A1-03 | 枚举白名单与回退：未知 emotion → `neutral`，未知 motion → `idle` | D2 | 单测覆盖合法值、未知值、空值 |
-| A1-04 | 合同对齐：`text` 字段，校验 `session_id`/`character_id`，处理 `error`；过渡期读 `text ?? reply_text`；Mock 改用冻结枚举 | D2 | 单测；Mock 演示 |
-| A1-05 | `session_id` 首次启动生成 UUID 并持久化；默认 `characterId=arknights_fan_001`；默认端口按合同统一 | D2 | 单测 |
-| A1-06 | 连接状态与自动重连（按 D3），指数退避 | D3 | 停后端 → 显示断线 → 恢复后 30 秒内自动可用 |
-| A1-07 | 接入 Live2D 渲染并读取 `model_dict.json`。选型和 Cubism Core 许可由 1、2 号先登记 | A1-01、A2-04 | 样例模型显示；缩放和位置生效 |
-| A1-08 | 表情和动作调用 SDK，`emotionMap` 映射，`tapMotions` | A1-07、A2-04 | 8 个表情、7 个动作逐个触发并录屏 |
-| A1-09 | 音频驱动口型（Web Audio `AnalyserNode`） | A1-07 | 有声时嘴动，静音时闭合 |
-| A1-10 | 语音输入：录音 → 按 D5 送 ASR；失败切到文本输入 | D5、C-04 | 正常识别；ASR 停止时提示并聚焦输入框 |
-| A1-11 | Windows 打包 `npm run package` | A1-01 | 干净机器可安装、可启动 |
-
-### 4.2 A2（2 号）
-
-| ID | 任务 | 依赖 | 验证点 |
-| --- | --- | --- | --- |
-| A2-01 | 枚举提案：确认 8 个情绪、7 个动作，作为 D2 输入 | 无 | 1、3 号在 PR 中确认 |
-| A2-02 | `characters/arknights_fan_001.yaml` 和字段说明 | A2-01 | B-04 loader 解析通过 |
-| A2-03 | 5 个 Prompt 文件；`emotion_rules.md` 要求 LLM 按 JSON 输出且只用冻结枚举 | A2-01 | 真实 LLM 10 轮对话，B 侧记录枚举合法率 |
-| A2-04 | 正式 `model_dict.json`，与开发模型的表情、动作名对照 | A2-01、D6 | A1-08 通过 |
-| A2-05 | D6：确定开发模型和正式模型来源，填写 `ASSET_SOURCE_TABLE.md` | 无 | 每项都有作者、链接、许可、用途、状态 |
-| A2-06 | `docs/VOICE_POLICY.md`；`LICENSE_NOTICE.md` 补上游 MIT 和 Live2D 样例许可 | D9 | 已合并 |
-| A2-07 | 知识文件初版（不复制官方剧情原文） | A2-02 | 抽查 |
-
-## 5. 线程 B：编排与 LLM（3 号）
-
-| ID | 任务 | 依赖 | 验证点 |
-| --- | --- | --- | --- |
-| B-01 | D4 调研：Open-LLM-VTuber 后端（`/client-ws`）能否在 1 GiB 下运行并满足 HTTP 合同；输出建议 | 无 | 一页结论，含内存实测或明确标“未实测” |
-| B-02 | 合同 v1.0：补 `/api/tts`、`/api/asr`、错误对象 `{code, message}`、鉴权头、超时、枚举；加 JSON Schema | A2-01、B-01、C-01 | 四人确认；schema 校验样例通过 |
-| B-03 | orchestrator 骨架：`/api/health`、`/api/chat`（mock LLM）、`/api/characters` | B-02 | pytest：schema 合规、未知枚举被修正为默认值 |
-| B-04 | 角色 loader：读 YAML，拼接 Prompt | A2-02 | 单测：缺文件、缺字段时报错清楚 |
-| B-05 | LLM 适配：OpenAI-compatible，解析输出 JSON，解析失败时用兜底回复 | B-03 | mock 模式；有 Key 时实测；无 Key 时 Key 相关测试跳过 |
-| B-06 | 调用 TTS：VM-2 失败切 VM-4，全部失败返回 `audio_url=null` | C-02、C-06 | 停 TTS 后仍返回文字和表情 |
-| B-07 | 会话管理：按 `session_id` 保存最近 N 轮，内存上限，过期清理 | B-03 | 单测；长时间运行内存平稳 |
-| B-08 | 鉴权与限流（D8）：共享令牌、CORS 白名单、每会话限速 | B-03、D8 | 无令牌 401；超限 429 |
-| B-09 | `deploy/vm1-gateway`：compose、内存上限、`.env.example` | B-03、C-01 | VM-1 上 `/api/health` 正常 |
-| B-10 | `/api/asr` 代理：鉴权、大小限制、转发 VM-3，失败返回 503 `ASR_UNAVAILABLE` | B-03、C-04 | 样例 WAV 经 VM-1 返回文字；停 VM-3 返回 503 |
-
-合同冻结前 B-03 不开始写业务代码（风险 R2）。
-
-## 6. 线程 C：语音与部署（4 号）
-
-| ID | 任务 | 依赖 | 验证点 |
-| --- | --- | --- | --- |
-| C-01 | D7：登录 4 台 VM，记录 CPU、内存、磁盘、系统、出口网络、开放端口（脱敏后存档） | 无 | `audit/` 下有记录，不含地址和凭据 |
-| C-02 | `tts_gateway`：Edge TTS 等合法 provider，按文本 hash 缓存，TTL 清理 | B-02 | 单测；缓存命中第二次请求明显更快 |
-| C-03 | VM-2 部署 TTS，compose 设内存上限 | C-01、C-02 | 运行 1 小时无 OOM，`docker stats` 留证 |
-| C-04 | `asr_gateway`（按 D5）：云 ASR 代理 | D5、B-02 | 样例 wav 能识别；超时返回标准错误 |
-| C-05 | VM-3 部署 ASR | C-01、C-04 | `/api/health` 正常 |
-| C-06 | VM-4：备用 TTS、配置与日志备份 | C-02 | 停 VM-2 后由 VM-4 返回音频 |
-| C-07 | `scripts/healthcheck.sh`：逐台逐服务输出状态和退出码 | C-03、C-05、B-09 | 停任一服务，脚本能指出是哪台 |
-| C-08 | `install_vm.sh`、`backup_config.sh`、`update_all.sh`，含回滚步骤 | C-01 | 在一台 VM 上实际执行回滚 |
-| C-09 | HTTPS 反向代理与证书（VM-1）。远程麦克风需要安全上下文 | B-09 | 客户端通过 https 连接成功 |
-| C-10 | `docs/SERVER_DEPLOYMENT.md`、`docs/TTS_ASR_GUIDE.md` 正式版 | C-07 | 非作者按文档从零部署一台成功 |
-
-## 7. S3 集成
-
-合并顺序沿用 README §16：`thread-a-character` → `thread-c-voice-ops` → `thread-b-orchestrator` → `thread-a-desktop` → `develop`。每次合并后在 `develop` 上跑完整 CI。
-
-| ID | 场景 | 通过标准 |
+| 决策 | 已确认内容 | 影响 |
 | --- | --- | --- |
-| IT-01 | 本机后端 + 客户端，文本对话 | 字幕、表情、动作正确 |
-| IT-02 | 加 TTS | 播放音频，口型跟随 |
-| IT-03 | 加 ASR | 语音提问得到回复 |
-| IT-04 | 返回未知 emotion / motion | 回退 `neutral` / `idle` |
-| IT-05 | 停 TTS | 只显示字幕，不报错 |
-| IT-06 | 停 ASR | 提示并切换到文本输入 |
-| IT-07 | 停后端 30 秒后恢复 | 自动重连 |
-| IT-08 | LLM 超时或 Key 无效 | 兜底回复 |
+| 目标 | 两天内完成可运行 MVP | 不以完整产品或生产发布为目标 |
+| 时间 | 2026-10-08 开始，2026-10-09 结束 | 两日内闭环或明确标记未完成 |
+| 执行方式 | 单人顺序执行 | 不按原三线程并行计划排期 |
+| 拓扑 | 两台服务器，HTTP/HTTPS | VM-3、VM-4 不在本次范围内 |
+| VM-1 | HTTPS、orchestrator、备用 TTS | 对外统一入口；本机 80/443 和 8080 被现有服务占用时使用 18080/18443 映射 |
+| VM-2 | 主 TTS、ASR、健康检查 | 提供服务和状态检查 |
+| 虚拟机规格 | 两台均为 Ubuntu 22.04、Standard B2ats v2、2 vCPU、1 GiB 内存 | 只运行轻量代理和 Mock 服务 |
+| LLM | Mock LLM | 不依赖真实 LLM API Key |
+| TTS / ASR | Mock TTS、Mock ASR | 验证真实 HTTP 链路和故障降级，真实供应商后续接入 |
+| 依赖 | 允许联网安装 | 记录安装命令和版本，不提交依赖缓存 |
+| 开发素材 | 合法免费样例 | 不提交官方素材、密钥或未授权音色 |
+| 后置项 | 真实 Live2D、Windows 打包 | 本次只记录后续入口，不作为 MVP 通过条件 |
 
-## 8. S4 四服务器验证
+截图中的公网 IP、订阅 ID、资源组名称和其他云资源标识不写入仓库、计划书或审计报告；运行证据只记录脱敏后的 VM 名称和服务状态。
 
-1. 按 C-10 文档从零部署 VM-1 至 VM-4。
-2. 客户端连接 VM-1（https），重跑 IT-01 至 IT-08。
-3. 故障演练：逐台停机，用 healthcheck 定位；停 VM-2 验证 VM-4 接管。
-4. 回滚演练：在一台 VM 上回退到上一版本。
-5. 资源记录：每台峰值内存，作为风险 R3 的结论。
+## 2. 当前基线
 
-## 9. 决策时间表
+基线来自当前仓库内容和已有审计文件，不把计划目标当成现状：
 
-| ID | 截止 | 未按时决定时的默认方案 |
+| 项目 | 当前证据 | 状态 |
 | --- | --- | --- |
-| D1 | 10-08 | 代码仓库方案 |
-| D9 | 10-08 | 代码部分用 MIT（与上游一致），素材另行授权 |
-| D2 | 10-15 | 采用 `API_CONTRACT.md` 现有字段和枚举 |
-| D3 | 10-15 | HTTP + `/api/health` 轮询重连（改动最小，符合现有客户端） |
-| D4 | 10-15 | 自建轻量 orchestrator，上游只作参考 |
-| D5 | 10-15 | VM-3 云 ASR 代理（README 方案 B） |
-| D8 | 10-15 | 共享令牌 + HTTPS + 限流 |
-| D6 | 10-19 | 开发和演示用官方免费样例，不公开发布 |
-| D7 | 10-19 | 无默认；未核实则 S4 顺延 |
+| Git | `main` @ `97f6d062`，唯一已登记 worktree | 已完成 |
+| 仓库结构 | 最新提交包含 90 个跟踪文件，根目录已完成结构扁平化 | 已完成 |
+| 客户端历史审计 | `audit/thread_a1_desktop_audit.json` 记录原客户端原型为 `partial` | 历史部分可用 |
+| 当前工作区 | 计划写入前曾存在 `upstream/Open-LLM-VTuber/client/` 下 35 个跟踪文件的未提交删除；已获用户授权并恢复 | 已复核，当前改动均为本次 MVP 实施 |
+| API 合同 | `docs/API_CONTRACT.md` 已冻结为 Mock LLM/TTS/ASR 的 MVP v2.0 合同 | 已完成 |
+| 后端 | `server/` 已有标准库 orchestrator、Mock TTS、Mock ASR 和共享 HTTP 工具 | 已完成并通过接口验证 |
+| 部署 | `deploy/` 已有两套 Compose、Caddy HTTP/HTTPS 和脱敏环境样例 | 已部署；正式 VM 私网互通待补 |
+| 角色包 | 只有目录说明和示例配置，没有正式模型或素材登记 | 后置/部分 |
+| 最终审计 | `audit/final_integration_audit.md/json` 记录本轮实际命令和限制 | 已完成 |
 
-默认方案是为了避免长期阻塞，主导人可以在截止前提出替代方案。
+执行第一步必须先保存当前 `git status --short`，确认客户端恢复只包含必要的 Git 跟踪文件；若复核发现源码仍缺失，MVP 的“客户端启动”标记为 `blocked`，不得用占位文件冒充实现。
 
-## 10. 汇报与审计
+## 3. MVP 目标与边界
 
-- 每周一同步：每线程更新本周状态，格式沿用工作报告 v2（MD + JSON）。
-- 线程完成时提交 `audit/thread_<a1|a2|b|c>_audit.{md,json}`，测试结果附原始命令和输出。
-- 状态按验收项推导：没有证据不能写 pass；没跑的测试写 `not_run` 并说明原因。
-- 最终在 S5 提交 `audit/final_integration_audit.{md,json}`，逐项给出 AC-01 至 AC-16 的证据。
+### 3.1 必须交付
 
-## 11. 变更控制
+1. 客户端依赖可安装，主进程和渲染层可构建，客户端可启动到可操作界面。
+2. 客户端通过 HTTP/HTTPS 调用 VM-1 的 `POST /api/chat`。
+3. VM-1 使用 Mock LLM 返回 `session_id`、`character_id`、`text`、`emotion`、`motion`、`audio_url`、`error`。
+4. VM-1 调用 VM-2 的 Mock TTS，返回可播放测试音频或明确的 `audio_url=null` 降级结果。
+5. VM-2 暴露 Mock ASR HTTP 接口，样例音频可得到文本；ASR 失败时回到文本输入路径。
+6. VM-1 能在主 TTS 不可用时调用备用 TTS；全部 TTS 不可用时仍返回字幕和错误对象。
+7. VM-1、VM-2 可通过 Docker Compose 启动，并可按文档访问 HTTP/HTTPS 入口。
+8. 健康检查能区分 orchestrator、主 TTS、备用 TTS、ASR 的正常和失败状态。
+9. 生成 `audit/final_integration_audit.md` 与 `audit/final_integration_audit.json`，逐项记录证据、命令、结果和未完成项。
 
-- 改公共接口：先改 `docs/API_CONTRACT.md` 并经受影响人员在 PR 中确认，再改代码（README §24）。
-- 所有改动通过 PR 进入 `develop`，至少 1 人审阅；不直接推 `main`。
-- 不提交 `.env`、凭据、服务器地址、官方素材或未授权音色。
-- 计划变更时更新本文件版本号，并在周报中说明原因。
+### 3.2 明确排除
 
-## 12. 下一步（本周）
+- 真实 LLM、真实 TTS、真实 ASR 供应商接入。
+- 真实 Live2D Cubism 模型渲染、表情动作播放和音频驱动口型。
+- Windows 安装包和 `npm run package` 的通过性。
+- 四服务器拓扑、VM-3/VM-4 独立部署、生产级公网发布。
+- 官方游戏素材、官方角色语音、声优克隆音色和任何凭据文件。
 
-1. 拥有者：10-08 前召开 G-01 决策会，决定 D1、D9。
-2. 1 号：A1-01 修构建（不依赖任何决策，约 1 小时）。
-3. 2 号：A2-01 枚举提案、A2-05 开始登记模型来源。
-4. 3 号：B-01 上游调研。
-5. 4 号：C-01 登录核实 4 台服务器。
+排除项在审计中标记为 `deferred`，不得写成 `fail` 或 `pass`。
+
+## 4. 两台 VM 的负载设计
+
+### 4.1 资源约束
+
+每台 VM 的可用规格是 2 vCPU、1 GiB 内存。Ubuntu、SSH、Docker daemon、日志和文件缓存必须预留资源，因此容器不能按 1 GiB 全额使用。
+
+| VM | 服务 | 容器内存上限建议 | 设计 CPU 上限 | 说明 |
+| --- | --- | ---: | ---: | --- |
+| VM-1 | HTTPS 入口、orchestrator、Mock LLM、备用 TTS | 560 MiB 合计 | 1.5 vCPU 合计 | 每次只处理轻量 JSON 编排和小型测试音频 |
+| VM-2 | 主 Mock TTS、Mock ASR、健康检查 | 500 MiB 合计 | 1.5 vCPU 合计 | 不加载本地模型，不做音频长时转码 |
+
+两台 VM 都保留至少约 250 MiB 给系统和 Docker。实际峰值必须用 `free -m`、`docker stats --no-stream` 和请求压测记录；未实测数字不得写成容量保证。
+
+### 4.2 MVP 支持范围
+
+这是本次演示的设计容量，不是生产 SLA：
+
+| 指标 | 目标范围 | 超出处理 |
+| --- | --- | --- |
+| 同时进行的聊天请求 | VM-1 最多 2 个 | 第 3 个排队或返回 `BUSY` |
+| 同时 TTS/ASR 请求 | VM-2 最多 2 个 | 返回 429 或进入短队列 |
+| 全链路持续请求 | 约 0.2 req/s（每分钟 12 次） | 降低频率并记录拒绝 |
+| 单次测试音频 | 不超过 30 秒、5 MiB | 413 拒绝 |
+| 单会话速率 | 不超过 10 次/分钟 | 429 拒绝 |
+| 演示用户数 | 1 个活跃用户，最多 3 个短时并发连接 | 不承诺多人生产使用 |
+| 健康检查 | 每服务 30 秒一次 | 不得与业务请求争抢全部 CPU |
+
+MVP 的压力校验为 5 个并发短请求、持续 5 分钟；验收记录 P95 响应时间、错误数、CPU 峰值和内存峰值。若任一 VM 内存达到 850 MiB、出现 OOM、连续 3 次超时或 CPU 持续超过 85%，即判为超出设计范围，停止增加并发并记录降级结果。
+
+### 4.3 不允许的负载
+
+- 在任一 VM 上运行本地 LLM、Whisper 等常驻模型或重型 TTS。
+- 把完整音频文件长期缓存在内存中；Mock 音频应使用小型固定 fixture 或短时文件。
+- 将 Docker、Caddy、健康检查和业务容器设置为无上限运行。
+- 以单次成功请求推断长期稳定性；必须记录连续请求和资源峰值。
+
+## 5. MVP 接口冻结
+
+正式内容写入 `docs/API_CONTRACT.md`，客户端、orchestrator、TTS、ASR 使用同一份样例。
+
+### 5.1 `POST /api/chat`
+
+```json
+{
+  "session_id": "demo-session",
+  "character_id": "arknights_fan_001",
+  "input_type": "text",
+  "text": "今天有点累。",
+  "enable_tts": true
+}
+```
+
+成功响应：
+
+```json
+{
+  "session_id": "demo-session",
+  "character_id": "arknights_fan_001",
+  "text": "博士，先休息一下吧。",
+  "emotion": "worried",
+  "motion": "idle",
+  "audio_url": "http://vm1-or-vm2/mock-audio/demo.wav",
+  "error": null
+}
+```
+
+错误响应保留同一外层结构，`error` 使用 `{ "code": "SERVICE_UNAVAILABLE", "message": "..." }`；不再新增 `reply_text` 作为主字段。
+
+### 5.2 其他接口
+
+| 接口 | 用途 | MVP 验收 |
+| --- | --- | --- |
+| `GET /api/health` | VM-1 服务状态 | 返回 `status` 及 `llm`、`tts`、`asr` 状态 |
+| `GET /api/characters` | 返回默认角色元数据 | 至少返回 `arknights_fan_001` |
+| `POST /api/tts` | VM-2 Mock TTS | 返回测试音频 URL、provider 和 cache 状态 |
+| `POST /api/asr` | VM-2 Mock ASR | 样例输入返回文本；故障返回标准错误 |
+
+情绪和动作沿用合同枚举；客户端未知值回退到 `neutral` / `idle`。MVP 不要求真实 Live2D 播放，但要覆盖字段解析测试。
+
+## 6. 两日执行顺序
+
+### 6.1 2026-10-08：基线、合同和服务骨架
+
+| 时间段 | 任务 | 交付物 | 验证证据 |
+| --- | --- | --- | --- |
+| 上午 | 保存当前状态；确认客户端文件删除是否保留；联网安装依赖；修复构建和测试入口 | 可复核的状态快照 | `git status`、安装、构建、测试原始输出 |
+| 上午 | 冻结 MVP 合同；准备请求、成功、TTS 失败、ASR 失败样例 | `docs/API_CONTRACT.md` 和 fixtures | JSON 校验或等价脚本输出 |
+| 下午 | 实现 VM-2 Mock TTS/ASR 和健康接口 | `server/tts_gateway/`、`server/asr_gateway/` | 正常、非法、停止服务测试 |
+| 下午 | 实现 VM-1 orchestrator、Mock LLM、默认角色、主备 TTS 和统一错误 | `server/orchestrator/` | `/api/chat`、`/api/health`、主备切换记录 |
+| 收尾 | 写 VM-1/VM-2 Compose 和脱敏 `.env.example` | `deploy/` 配置 | `docker compose config` 或等价检查 |
+
+### 6.2 2026-10-09：客户端、演练和审计
+
+| 时间段 | 任务 | 交付物 | 验证证据 |
+| --- | --- | --- | --- |
+| 上午 | 客户端接入合同；显示 `text`；播放 Mock 音频；处理 `audio_url=null`；ASR 失败回到文本 | 客户端接口对齐 | 文本、音频、TTS 失败、ASR 失败记录 |
+| 上午 | 配置共享令牌和 HTTP/HTTPS 本地入口；不把令牌写入仓库 | 非敏感配置和部署说明 | 无令牌拒绝、有效令牌成功 |
+| 下午 | 启动两台 VM；执行健康检查；依次停止主 TTS、ASR、orchestrator | 运行中的演示环境 | 健康检查、故障响应、客户端降级证据 |
+| 下午 | 执行 5 并发短请求压力校验；生成 MD/JSON 最终审计 | `audit/final_integration_audit.md/json` | 两份报告结论、状态和证据一致 |
+
+若 10 月 8 日结束时客户端构建或合同仍未通过，10 月 9 日优先修复阻塞项；不得先扩展 Live2D 或真实供应商能力。
+
+## 7. 任务清单与完成标准
+
+| ID | 任务 | 完成标准 |
+| --- | --- | --- |
+| MVP-01 | 当前状态和删除项审计 | 保留 `git status` 证据；删除项有明确结论 |
+| MVP-02 | 客户端依赖和构建修复 | `npm run build` 成功；若源码删除未恢复则记录 `blocked` |
+| MVP-03 | 客户端测试入口修复 | `npm test` 找到并运行现有测试 |
+| MVP-04 | API 合同冻结 | 合同、fixtures、客户端字段一致 |
+| MVP-05 | Mock LLM | 无 Key 返回稳定合同响应 |
+| MVP-06 | Mock TTS | 返回可播放测试音频；异常返回标准错误 |
+| MVP-07 | Mock ASR | 样例请求返回文本；异常可识别 |
+| MVP-08 | orchestrator 编排 | chat → LLM → TTS，主备和全失败路径可复现 |
+| MVP-09 | 客户端接入 | 文本、字幕、音频、TTS/ASR 降级完成 |
+| MVP-10 | 两台 Compose | 两台配置可解析并能启动 |
+| MVP-11 | 健康检查 | 覆盖四个逻辑服务，输出状态和失败目标 |
+| MVP-12 | 负载边界验证 | 5 并发短请求，记录 CPU、内存、P95 和错误数 |
+| MVP-13 | 最终审计 | MD/JSON 一一对应，所有未执行项写明原因 |
+
+## 8. 验收矩阵
+
+| 编号 | 验收项 | 通过证据 |
+| --- | --- | --- |
+| AC-MVP-01 | 客户端启动 | 构建输出和启动日志/截图 |
+| AC-MVP-02 | 客户端调用 VM-1 文本对话 | 请求与响应原始记录 |
+| AC-MVP-03 | Mock LLM 返回合同字段 | API 测试输出 |
+| AC-MVP-04 | Mock TTS 生成并播放测试音频 | 音频响应与播放记录 |
+| AC-MVP-05 | Mock ASR 返回文本 | 样例请求响应记录 |
+| AC-MVP-06 | TTS 失败时保留字幕 | 停止主/备 TTS 后的响应和界面记录 |
+| AC-MVP-07 | ASR 失败时回到文本输入 | 故障响应和客户端记录 |
+| AC-MVP-08 | 主 TTS → 备用 TTS 切换 | VM-2 故障演练输出 |
+| AC-MVP-09 | 健康检查定位故障 | 健康检查命令输出 |
+| AC-MVP-10 | 两台 Compose 可部署 | 配置检查和启动日志 |
+| AC-MVP-11 | HTTP/HTTPS 入口可访问 | curl 或浏览器请求记录 |
+| AC-MVP-12 | 负载在设计范围内 | 5 并发压力输出和资源峰值 |
+| AC-MVP-13 | 审计报告完整 | `audit/final_integration_audit.md/json` |
+
+状态只能使用：`pass`、`partial`、`fail`、`not_run`、`blocked`、`deferred`。没有原始证据不得标记 `pass`。
+
+## 9. 审计输出
+
+最终报告至少包含：
+
+- Git 提交、工作区状态和实际修改文件；
+- 安装、构建、测试、Compose、健康检查、接口调用和压力校验命令；
+- AC-MVP-01 至 AC-MVP-13 的状态和证据路径；
+- TTS/ASR 主备与失败降级结果；
+- 两台 VM 的 CPU、内存、P95、错误数和超载判定；
+- 未完成项、阻塞原因和下一阶段建议；
+- 依赖版本、运行环境和是否使用外部服务；
+- 敏感字段脱敏确认。
+
+MD 与 JSON 必须共享同一结论。不得记录密钥、服务器地址、Cookie、完整令牌或个人隐私。
+
+## 10. 后续路线
+
+MVP 通过后再建立后续计划，不把后续内容混入本次验收：
+
+1. 接入合法授权的 Live2D 模型、`model_dict.json`、表情动作和音频驱动口型。
+2. 接入真实 TTS/ASR 供应商并记录授权、成本和限额。
+3. 完善会话管理、自动重连、限流、生产 HTTPS 和公网安全策略。
+4. 实现 Windows 打包、安装测试和非技术用户安装文档。
+5. 根据实际资源决定是否恢复四服务器拓扑。
+
+后续每项开始前，都要更新本计划或新建带版本号的计划，并重新生成审计证据。
+
+## 11. 第二阶段执行计划：角色包与 Live2D 占位增强
+
+- 版本：Phase 2 / placeholder-track，审计日期：2026-10-08
+- 启动依据：第一阶段 MVP 的客户端、Mock LLM、Mock TTS/ASR、降级、HTTP/HTTPS 和审计链路已完成；用户已选择“角色包与 Live2D 占位增强”为下一条主线。
+- 当前状态：代码和开发元数据已落地，客户端自检通过；真实 Live2D 仍为 `deferred`。
+
+### 11.1 已审计决策
+
+| 决策 | 结论 | 计划影响 |
+| --- | --- | --- |
+| 目标窗口 | 继续沿用 2026-10-08 至 2026-10-09 的两日 MVP 窗口 | 第二阶段只做可运行占位增强和可验证合同，不扩展生产拓扑 |
+| 服务器职责 | VM-1：HTTPS + orchestrator + 备用 TTS；VM-2：主 TTS + ASR + 健康检查 | 角色资源由客户端静态目录消费，不新增 VM |
+| 服务来源 | Mock LLM/TTS/ASR；真实供应商后续接入 | 不把供应商凭据或音色加入角色包 |
+| 合规边界 | 允许联网安装依赖；使用合法免费样例和项目自有占位素材 | 禁止官方素材、未授权音色、密钥和 Cubism Core 入库 |
+| 执行方式 | 单人顺序执行 | 依赖顺序为字典合同 → 客户端校验 → 角色元数据 → 构建审计 |
+| 当前主线 | 角色包与 Live2D 占位增强 | 本阶段验收不要求真实 Live2D 绘制 |
+
+### 11.2 本阶段交付
+
+1. `model_dict.json` 合同表、严格校验、表情映射和动作映射。
+2. 未知表情回退 `neutral`，未知动作回退 `idle`；状态机不再产生合同外值。
+3. `placeholder_operator` 模型元数据和 `arknights_fan_001` 角色 YAML。
+4. 素材来源登记和开发期合规说明。
+5. 客户端构建、测试和占位资源打包验证。
+6. `audit/phase2_live2d_audit.{md,json}`，记录命令、状态和未决项。
+
+### 11.3 执行顺序与验收
+
+| 顺序 | 工作 | 证据 | 状态 |
+| --- | --- | --- | --- |
+| 1 | 冻结模型字典字段和值域 | `modelDict.ts`、角色包 JSON | `pass` |
+| 2 | 修复状态机合同外值 | `CharacterStateMachine.ts`、状态机测试 | `pass` |
+| 3 | 实现模型字典校验和映射测试 | `tests/modelDict.test.ts` | `pass` |
+| 4 | 构建并运行客户端测试 | `npm run selfcheck` | `pass` |
+| 5 | 校验构建产物包含占位 JSON | `dist/renderer/characters/...` | `pass`，模型 JSON 和字典均已复制 |
+| 6 | 审计正式模型授权和安装包范围 | 用户确认记录 | `deferred`，未获确认前不执行 |
+
+### 11.4 资源与风险约束
+
+- 沿用两台 VM 的负载范围：VM-1 合计容器上限约 560 MiB、VM-2 约 500 MiB；本阶段不在服务器运行 Live2D 或音频模型。
+- 占位资源仅为小型 JSON 和 CSS，不能据此推断正式模型的 GPU、内存或安装包容量需求。
+- 不修改 Azure VNet/NSG、DNS、公网证书、系统防火墙或 VM 数量；这些事项必须单独审计确认。
+
+### 11.5 用户审计门槛
+
+以下事项在用户明确确认前保持 `deferred`，不写成已完成：正式模型是否获授权、许可是否允许再分发、是否进入 Windows 安装包、是否引入 Cubism Core、正式模型体积和目标设备资源预算。
+
+## 12. 剩余阶段执行结果与边界（2026-10-08）
+
+用户已审计确认：继续使用项目自有占位资源；继续使用 Mock TTS/ASR 并完成部署硬化；保持两台 VM，不修改 Azure VNet/NSG、DNS、公网证书或 VM 数量。按此边界，剩余工作分为“可执行收尾”和“外部条件未满足的后续阶段”：
+
+| 阶段 | 工作 | 当前状态 | 证据/原因 |
+| --- | --- | --- | --- |
+| Phase 3 | Windows 未签名开发安装包 | `pass` | `npm run package:dev` 生成 `release/Arknights VTuber Pet Setup 0.1.0.exe` |
+| Phase 3 | 两台 Compose 配置、环境变量门禁、回滚文档 | `pass` | `docker compose config`、`scripts/validate_deployment.py` 和 `docs/SERVER_DEPLOYMENT.md` |
+| Phase 3 | 生产域名、非空令牌和实际 VM 私网地址 | `not_run` | 当前未提供真实值；生产校验会拒绝 `localhost`、占位 URL 和空令牌 |
+| Phase 4 | 正式 Live2D/Cubism | `deferred` | 用户确认继续项目自有占位；没有授权模型、许可文本和 Core 分发确认 |
+| Phase 5 | 真实 TTS/ASR | `deferred` | 用户确认继续 Mock；没有供应商选择、凭据和费用/限额审计 |
+| Phase 6 | 四 VM 拓扑扩展 | `deferred` | 用户确认保持两台 VM |
+
+因此，当前计划范围内可执行的阶段已完成；后三项不是失败，而是经用户审计后明确保留的后续入口。任何重新开启都必须先更新本节并重新审计资源、授权、凭据和验收标准。

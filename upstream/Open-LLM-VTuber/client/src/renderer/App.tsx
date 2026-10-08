@@ -5,6 +5,7 @@ import { PetStage } from "./components/PetStage";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { AudioPlayer } from "./audio/AudioPlayer";
 import { postChat } from "./api/chatClient";
+import { AsrClientError, postAsr } from "./api/asrClient";
 import { postMockChat } from "./api/mockChatClient";
 import { loadClientConfig, saveClientConfig } from "./config/clientConfig";
 import { CharacterStateMachine } from "./live2d/CharacterStateMachine";
@@ -73,16 +74,13 @@ export function App() {
     setMessages((current) => [...current, { id: crypto.randomUUID(), role: "user", text: trimmed, createdAt: Date.now() }]);
 
     const request: ChatRequest = {
-      session_id: "local-user-001",
+      session_id: sessionStorage.getItem("arknights-vtuber-session") ?? crypto.randomUUID(),
       character_id: config.characterId,
       input_type: "text",
       text: trimmed,
-      audio_base64: null,
-      client_state: {
-        current_motion: presentation.motion,
-        language: config.language
-      }
+      enable_tts: config.autoPlayVoice
     };
+    sessionStorage.setItem("arknights-vtuber-session", request.session_id);
 
     try {
       const response = config.mockMode
@@ -95,7 +93,7 @@ export function App() {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          text: response.reply_text,
+          text: response.text,
           emotion: response.emotion,
           motion: response.motion,
           createdAt: Date.now()
@@ -103,7 +101,7 @@ export function App() {
       ]);
 
       if (config.autoPlayVoice) {
-        const played = await audioPlayer.play({ audioUrl: response.audio_url, audioBase64: response.audio_base64 });
+        const played = await audioPlayer.play({ audioUrl: response.audio_url, audioBase64: response.audio_base64, mimeType: response.mime_type });
         if (!played) {
           window.setTimeout(() => stateMachine.speakingEnded(), Math.max(1200, response.duration_ms || 2200));
         }
@@ -116,6 +114,21 @@ export function App() {
       stateMachine.requestFailed(message);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function receiveVoiceInput(): Promise<void> {
+    if (busy) return;
+
+    setError(null);
+    try {
+      const response = config.mockMode
+        ? { text: "博士，今天有什么任务？" }
+        : await postAsr("博士，今天有什么任务？", { baseUrl: config.backendBaseUrl, timeoutMs: config.requestTimeoutMs });
+      setInput(response.text);
+    } catch (caught) {
+      const message = caught instanceof AsrClientError ? caught.message : "语音识别失败，请改用文本输入。";
+      setError(message);
     }
   }
 
@@ -137,6 +150,7 @@ export function App() {
         onInputChange={setInput}
         onSend={() => void sendMessage()}
         onRetry={() => void sendMessage(lastTextRef.current)}
+        onVoiceInput={() => void receiveVoiceInput()}
       />
       <SettingsPanel open={settingsOpen} config={config} onChange={setConfig} onClose={() => setSettingsOpen(false)} />
     </main>

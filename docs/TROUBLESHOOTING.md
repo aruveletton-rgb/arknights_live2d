@@ -2,11 +2,11 @@
 
 ## npm install 无法完成
 
-确认网络可访问 npm 源，并使用 Node.js 20+。本次整理环境无法完整获取依赖，因此没有生成 `node_modules` 或 `package-lock.json`。
+确认网络可访问 npm 源，并使用 Node.js 20+。当前客户端已提交 `package-lock.json`；优先使用 `npm ci`，失败时记录具体网络或权限错误，不要删除锁文件。
 
 ## 桌宠窗口出现但没有 Live2D 模型
 
-这是当前原型的预期行为。检查设置中的模型路径是否指向可访问的 `*.model3.json`；即使文件可访问，当前代码也只完成路径验证，仍会显示 CSS 占位角色。
+当前默认模型是项目自有 `placeholder_operator`。检查设置中的模型路径是否指向可访问的 `*.model3.json`，并确认同目录 `model_dict.json` 合法；正式 Live2D 模型仍需授权后接入。
 
 ## 后端请求失败
 
@@ -21,7 +21,7 @@
 
 ## 表情或动作没有变化
 
-当前实现只把状态写入 HTML `data-*` 属性，并未调用真实 Live2D 表情/动作 API。需要完成 `Live2DRenderer`、`ExpressionController` 和 `MotionController` 的正式接入。
+当前实现将经过白名单和映射后的值写入 HTML `data-*` 属性，尚未调用真实 Live2D 表情/动作 API。正式模型获批后，再接入 `ExpressionController` 和 `MotionController` 的 Cubism 实现。
 
 ## 断线后没有自动重连
 
@@ -29,4 +29,8 @@
 
 ## 语音输入按钮不可用
 
-按钮目前是占位功能，默认配置关闭语音输入，尚未接入线程 C 的 ASR Gateway。
+默认配置关闭语音输入；开启后会调用 VM-2 的 Mock ASR Gateway，失败时保留文本输入路径。真实 ASR 供应商不在当前阶段。
+
+## Windows 安装包构建失败
+
+`npm run package` 需要下载 Electron 和签名工具。网络受限或没有代码签名证书时，先确认 `npm run build` 通过，再使用 `npm run package:dev` 生成未签名开发安装包。正式发布前必须补充签名证书和可验证的安装测试。

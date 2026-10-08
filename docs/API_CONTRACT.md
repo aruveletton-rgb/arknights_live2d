@@ -1,6 +1,6 @@
-# API 合同（计划书参考版）
+# API 合同（MVP v2.0）
 
-> 状态：从项目计划书整理出的参考合同。正式集成前仍需由人员 3 主导、全员确认并冻结。
+> 状态：2026-10-07 已按 MVP 范围冻结。实现使用 Mock LLM/TTS/ASR，真实供应商后续接入。
 
 ## POST /api/chat
 
@@ -26,9 +26,14 @@
   "emotion": "worried",
   "motion": "encourage",
   "audio_url": null,
+  "audio_base64": null,
+  "mime_type": "audio/wav",
+  "duration_ms": 180,
   "error": null
 }
 ```
+
+`error` 为 `null` 或 `{ "code": "SERVICE_UNAVAILABLE", "message": "..." }`。主 TTS 失败时仍返回 `text` 和备用音频；全部 TTS 失败时 `audio_url`、`audio_base64` 均可为 `null`。
 
 ## GET /api/characters
 
@@ -55,12 +60,20 @@
 }
 ```
 
+## POST /api/tts
+
+VM-2 的 Mock TTS 接口。请求至少包含非空 `text`，响应包含 `audio_url`、`audio_base64`、`mime_type`、`duration_ms`、`provider`、`cache_hit` 和 `error`。
+
+## POST /api/asr
+
+VM-2 的 Mock ASR 接口。请求为 JSON 音频对象；MVP 测试可附带 `text` fixture。成功响应包含 `text`、`provider`、`confidence` 和 `error`，服务不可用时返回 HTTP 503 和 `ASR_UNAVAILABLE`。
+
 ## 冻结枚举
 
 情绪：`neutral`、`smile`、`serious`、`worried`、`sad`、`surprised`、`thinking`、`confident`。
 
 动作：`idle`、`greeting`、`nod`、`shake`、`think`、`encourage`、`battle_ready`。
 
-## 客户端兼容状态
+## 鉴权和限制
 
-当前客户端尚未遵守本合同，具体差异见 `API_CONTRACT_ALIGNMENT.md`。
+MVP 支持可选的 `Authorization: Bearer <API_TOKEN>`。部署时若 `API_TOKEN` 为空则仅用于内网/本机演示；公网 HTTPS 使用前必须设置非空令牌。请求体默认不超过 5 MiB，orchestrator 同时处理不超过 2 个业务请求。
