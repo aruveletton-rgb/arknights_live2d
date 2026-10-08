@@ -43,8 +43,9 @@
     "audit_closure_commit": "64555ca3949041d2c9cd7f892258319db549928e",
     "audit_closure_message": "docs(audit): record verified remote push",
     "remote_branch": "origin/main",
-    "remote_head_at_audit_closure": "64555ca3949041d2c9cd7f892258319db549928e",
+    "verified_remote_head_before_metadata_commit": "64555ca3949041d2c9cd7f892258319db549928e",
     "push_status": "verified",
-    "worktree_after_push": "tracked_clean_existing_untracked_playwright_preserved"
+    "worktree_after_push": "tracked_clean_existing_untracked_playwright_preserved",
+    "note": "This snapshot records the remote ref verified before this metadata commit; final HEAD is reported in the delivery record."
   }
 }

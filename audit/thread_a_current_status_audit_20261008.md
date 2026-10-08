@@ -20,7 +20,8 @@
 - 当前分支为 `main`；用户明确要求推送至远端，因此按仓库现有分支执行。
 - 实现提交：`aa8b6a497ad7f30113bde1e74fdf1ba1e0ffce5b`，提交信息 `feat(thread-a): complete audited desktop candidate`。
 - 审计收尾提交：`64555ca3949041d2c9cd7f892258319db549928e`，提交信息 `docs(audit): record verified remote push`。
-- 当前远端 `origin/main`：`64555ca3949041d2c9cd7f892258319db549928e`，已与本地核对一致。
+- 本审计元数据提交前直接核对的远端 `origin/main`：`64555ca3949041d2c9cd7f892258319db549928e`。
+- 本次元数据提交会使远端继续前进；最终 `HEAD` 和 `ls-remote` 结果以交付记录中的最后一次命令输出为准。
 - 推送后工作树：跟踪文件干净；仅保留原有未跟踪 `.playwright-cli/`。
 
 ## 已验证证据
