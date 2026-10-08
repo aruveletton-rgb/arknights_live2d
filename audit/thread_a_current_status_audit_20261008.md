@@ -18,6 +18,9 @@
 - 推送前 `HEAD == origin/main == a75bb63f75a9f2c96715bb7b53055736bbf40a94`。
 - 未发现合并冲突、远端领先或本地分叉。
 - 当前分支为 `main`；用户明确要求推送至远端，因此按仓库现有分支执行。
+- 代码提交：`aa8b6a497ad7f30113bde1e74fdf1ba1e0ffce5b`，提交信息 `feat(thread-a): complete audited desktop candidate`。
+- 首次推送结果：`origin/main` 已核对为 `aa8b6a497ad7f30113bde1e74fdf1ba1e0ffce5b`。
+- 推送后工作树：跟踪文件干净；仅保留原有未跟踪 `.playwright-cli/`。
 
 ## 已验证证据
 
