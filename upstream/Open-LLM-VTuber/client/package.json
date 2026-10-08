@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "npm run build && concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
     "build": "tsc -p tsconfig.main.json && vite build",
-    "package": "npm run build && electron-builder --win nsis",
-    "package:dev": "npm run build && electron-builder --win nsis --config.electronDist=node_modules/electron/dist --config.win.signAndEditExecutable=false",
+    "package": "npm run build && electron-builder --win nsis portable",
+    "package:dev": "npm run build && electron-builder --win nsis portable --config.electronDist=node_modules/electron/dist --config.win.signAndEditExecutable=false",
     "test": "vitest run --root .",
     "selfcheck": "npm run build && npm run test"
   },

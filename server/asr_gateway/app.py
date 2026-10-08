@@ -1,7 +1,7 @@
 import os
 from http import HTTPStatus
 
-from server.common.http_utils import QuietHandler, error_payload, read_json, serve, write_json
+from server.common.http_utils import QuietHandler, error_payload, read_json, read_multipart, serve, write_json
 
 
 PORT = int(os.getenv("PORT", "8083"))
@@ -22,7 +22,14 @@ class Handler(QuietHandler):
         if os.getenv("MOCK_FAILURE", "0") == "1":
             write_json(self, HTTPStatus.SERVICE_UNAVAILABLE, {"error": error_payload("ASR_UNAVAILABLE", "Mock ASR 已按配置停止")})
             return
-        payload = read_json(self)
+        if self.headers.get("Content-Type", "").lower().startswith("multipart/form-data"):
+            payload = read_multipart(self)
+            audio = payload.get("file") if payload else None
+            if not isinstance(audio, bytes) or not audio:
+                write_json(self, HTTPStatus.BAD_REQUEST, {"error": error_payload("INVALID_AUDIO", "multipart 请求必须包含非空 file")})
+                return
+        else:
+            payload = read_json(self)
         if not payload:
             write_json(self, HTTPStatus.BAD_REQUEST, {"error": error_payload("INVALID_AUDIO", "请求必须包含 JSON 音频对象")})
             return

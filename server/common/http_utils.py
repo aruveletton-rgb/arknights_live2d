@@ -1,6 +1,8 @@
 """Small stdlib-only helpers shared by the MVP HTTP services."""
 
 import base64
+from email import policy
+from email.parser import BytesParser
 import io
 import json
 import math
@@ -61,6 +63,17 @@ def write_wav(handler: BaseHTTPRequestHandler) -> None:
 
 
 def read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any] | None:
+    raw = read_body(handler)
+    if raw is None:
+        return None
+    try:
+        value = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def read_body(handler: BaseHTTPRequestHandler) -> bytes | None:
     raw_length = handler.headers.get("Content-Length", "0")
     try:
         length = int(raw_length)
@@ -69,10 +82,37 @@ def read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any] | None:
     if length <= 0 or length > MAX_BODY_BYTES:
         return None
     try:
-        value = json.loads(handler.rfile.read(length))
-    except (json.JSONDecodeError, UnicodeDecodeError):
+        return handler.rfile.read(length)
+    except OSError:
         return None
-    return value if isinstance(value, dict) else None
+
+
+def read_multipart(handler: BaseHTTPRequestHandler) -> dict[str, Any] | None:
+    content_type = handler.headers.get("Content-Type", "")
+    if not content_type.lower().startswith("multipart/form-data"):
+        return None
+    raw = read_body(handler)
+    if raw is None:
+        return None
+    try:
+        message = BytesParser(policy=policy.default).parsebytes(
+            f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode("ascii") + raw
+        )
+        if not message.is_multipart():
+            return None
+        fields: dict[str, Any] = {}
+        for part in message.iter_parts():
+            name = part.get_param("name", header="content-disposition")
+            if not name:
+                continue
+            payload = part.get_payload(decode=True) or b""
+            if name == "file":
+                fields["file"] = payload
+            else:
+                fields[name] = payload.decode("utf-8", errors="replace")
+        return fields
+    except (ValueError, UnicodeError):
+        return None
 
 
 def error_payload(code: str, message: str) -> dict[str, Any]:
@@ -88,7 +128,7 @@ class QuietHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(HTTPStatus.NO_CONTENT)
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type,Authorization")
         self.end_headers()
 

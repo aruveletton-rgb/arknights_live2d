@@ -1,0 +1,122 @@
+{
+  "report_format": "thread_a_next_step_manifest",
+  "version": "0.1",
+  "observed_at": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "status": "n1_partial_p0_3_client_candidate_a2_blocked",
+  "thread": "A",
+  "plan": {
+    "path": "docs/implementation/THREAD_A_NEXT_STEP_PLAN_20261008.md",
+    "sha256": "415fd4d5bd222e2b4cd44f123fb7cceeed3a2dcd447eb5aa970e405d9c3a4aad",
+    "status": "user_approved_execution_in_progress"
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "a75bb63f75a9f2c96715bb7b53055736bbf40a94",
+    "origin_main": "a75bb63f75a9f2c96715bb7b53055736bbf40a94",
+    "remote": "git@github.com:aruveletton-rgb/arknights_live2d.git",
+    "existing_untracked_preserved": [".playwright-cli/"],
+    "current_execution_changes_preserved": true
+  },
+  "gates": {
+    "N0": "pass_read_only_scope_frozen",
+    "N1": "partial_runtime_candidate_assets_missing",
+    "N2": "not_started_user_supplier_evidence_required",
+    "N3": "candidate_minimum_contract_and_client_wiring_backup_and_delete_propagation_unverified",
+    "N4": "not_started_clean_machine_and_deployment_input_required",
+    "N5": "candidate_p0_3_evidence_recorded_external_audits_pending"
+  },
+  "findings": [
+    {
+      "id": "N1-01",
+      "finding": "仓库、下载目录和客户端工作树未发现可审计的 .moc3、真实 model3.json、纹理资源或 Cubism Core。",
+      "status": "blocked",
+      "evidence": "read-only recursive file scan; only placeholder.model3.json exists"
+    },
+    {
+      "id": "N1-02",
+      "finding": "官方样例、样例条款和 Web SDK 页面可访问，但本次未下载或纳入任何官方二进制。",
+      "status": "source_found_assets_unverified",
+      "evidence": [
+        "https://www.live2d.com/en/learn/sample/",
+        "https://www.live2d.com/en/learn/sample/model-terms/",
+        "https://www.live2d.com/en/sdk/download/web/",
+        "https://www.live2d.com/en/sdk/license/"
+      ]
+    },
+    {
+      "id": "N1-03",
+      "finding": "pixi-live2d-display@0.4.0（MIT）和 pixi.js@8.22.0（MIT）可作为运行时候选；pixi-live2d-display 仍需要外部 Cubism Core 和真实模型。",
+      "status": "candidate_not_installed",
+      "evidence": [
+        "npm view pixi-live2d-display@0.4.0 version license repository.url",
+        "npm view pixi.js version license repository.url",
+        "npm pack pixi-live2d-display@0.4.0 --dry-run --json"
+      ]
+    },
+    {
+      "id": "N1-04",
+      "finding": "未采用 npm 搜索到的非官方 Cubism Core 包；其授权和来源不满足当前资源门禁。",
+      "status": "rejected_for_scope",
+      "reason": "不能用未经用户审计的第三方 Core 代替官方 SDK/Core"
+    }
+  ],
+  "actions_completed": [
+    "重新核对 main、origin/main、远端和现有工作区改动",
+    "只读核对官方样例、样例条款、Web SDK 和 SDK 发布许可入口",
+    "只读核对 npm 运行时候选的版本、许可证和仓库地址",
+    "未下载模型、Core 或 SDK 二进制",
+    "实现 VM-1 SQLite 账号、会话、历史和记忆最小服务",
+    "接入登录、注销、管理员建号、历史查询/删除和记忆 CRUD 路由",
+    "账号会话存在时将聊天 user/assistant 文本绑定到服务端 user_id",
+    "通过 6 个服务端 Store/API 用例和 compileall 验证",
+    "客户端设置面板接入登录、注销、历史载入和记忆新增/删除",
+    "重新构建 NSIS 与 portable 包并记录新的 SHA-256"
+  ],
+  "blocked_next_actions": [
+    {
+      "id": "P0-1",
+      "reason": "缺少用户批准的真实样例包、Cubism Core/SDK 版本和分发结论"
+    },
+    {
+      "id": "P0-2",
+      "reason": "缺少用户安全环境中的 Groq ZDR、Azure Speech F0 资格和额度证据"
+    },
+    {
+      "id": "P0-3-ops",
+      "reason": "备份传播、删除传播、审计日志脱敏和生产数据库运维尚未实现或验证"
+    },
+    {
+      "id": "P0-4",
+      "reason": "P0-1 真实 Cubism 和 P0-2 真实供应商仍未通过，不能进行真实端到端联调"
+    },
+    {
+      "id": "P0-5",
+      "reason": "需要干净 Windows 验收机和设备矩阵"
+    },
+    {
+      "id": "P0-6",
+      "reason": "需要 VM、DNS、证书和部署维护窗口"
+    }
+  ],
+  "verification": {
+    "server_tests": "python -m unittest server.orchestrator.test_store server.orchestrator.test_api -v: pass, 6 tests",
+    "server_compile": "python -m compileall -q server: pass",
+    "client_tests": "npm test: pass, 9 files and 21 tests",
+    "client_build": "npm run build: pass",
+    "package": {
+      "command": "npm run package:dev",
+      "status": "pass",
+      "nsis_sha256": "0C65731C6BC51ACD107D0AB7BF00A92F4F91E59BB41305623C1D324662E66004",
+      "portable_sha256": "0021DB91BCC6E96BDB4495547B0E523AD19833C52BDFC36B88D7EFCC62C2223F"
+    },
+    "diff_check": "git diff --check: pass"
+  },
+  "next_user_input": [
+    "选择并提供许可明确的真实 Cubism 样例包，或提供精确下载/导入路径",
+    "确认允许的官方 SDK/Core 版本及是否允许随安装包分发",
+    "安排用户安全环境中的供应商资格核对",
+    "确认账号/历史/记忆/备份规则和 Windows/VM 验收资源",
+    "审计 P0-3 最小合同和客户端接线，确认备份/删除传播规则"
+  ]
+}

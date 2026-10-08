@@ -7,6 +7,8 @@ out/
 !.env.example
 temp/
 *.log
+data/*.sqlite3
+data/*.sqlite3-*
 __pycache__/
 .pytest_cache/
 .venv/

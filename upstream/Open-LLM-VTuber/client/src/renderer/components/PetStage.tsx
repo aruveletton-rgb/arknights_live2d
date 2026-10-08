@@ -33,7 +33,7 @@ export function PetStage({ modelPath, scale, presentation }: PetStageProps) {
   }, [presentation]);
 
   return (
-    <section className="pet-stage drag-region" aria-label="桌宠显示区域">
+    <section className="pet-stage no-drag" aria-label="桌宠显示区域">
       <div ref={rootRef} className="operator" data-state={presentation.state}>
         <div className="operator-shadow" />
         <div className="operator-body">

@@ -1,6 +1,8 @@
 export interface AsrClientOptions {
   baseUrl: string;
   timeoutMs: number;
+  token?: string;
+  language?: string;
 }
 
 export interface AsrResponse {
@@ -17,20 +19,32 @@ export class AsrClientError extends Error {
   }
 }
 
-export async function postAsr(fixtureText: string, options: AsrClientOptions): Promise<AsrResponse> {
+export async function postAsr(audio: Blob | string, options: AsrClientOptions): Promise<AsrResponse> {
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), options.timeoutMs);
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), options.timeoutMs);
+  const token = options.token?.trim();
+  const body = new FormData();
+  if (audio instanceof Blob) body.append("file", audio, "recording.webm");
+  else body.append("text", audio);
+  body.append("language", options.language ?? "zh-CN");
 
   try {
     const response = await fetch(`${options.baseUrl.replace(/\/$/, "")}/api/asr`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ audio_format: "mock", text: fixtureText }),
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body,
       signal: controller.signal
     });
 
     if (!response.ok) {
-      throw new AsrClientError(`语音识别服务返回异常状态码：${response.status}`);
+      let message = `语音识别服务返回异常状态码：${response.status}`;
+      try {
+        const payload = await response.json() as { error?: { message?: unknown } };
+        if (typeof payload.error?.message === "string") message = payload.error.message;
+      } catch {
+        // Keep the status-derived error when the body is not JSON.
+      }
+      throw new AsrClientError(message);
     }
 
     return (await response.json()) as AsrResponse;
@@ -41,6 +55,6 @@ export async function postAsr(fixtureText: string, options: AsrClientOptions): P
     }
     throw new AsrClientError("无法连接语音识别服务，请改用文本输入。", error);
   } finally {
-    window.clearTimeout(timeoutId);
+    globalThis.clearTimeout(timeoutId);
   }
 }

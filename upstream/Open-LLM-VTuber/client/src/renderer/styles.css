@@ -56,11 +56,23 @@ input {
 .topbar {
   position: absolute;
   top: 12px;
-  right: 12px;
+  left: 12px;
   z-index: 4;
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.drag-handle {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(124, 177, 198, 0.32);
+  border-radius: 7px;
+  color: #b8d7e3;
+  background: rgba(13, 22, 28, 0.82);
+  cursor: move;
 }
 
 .topbar button,
@@ -73,6 +85,25 @@ input {
   place-items: center;
   border: 1px solid rgba(124, 177, 198, 0.32);
   border-radius: 7px;
+}
+
+.topbar button {
+  position: relative;
+}
+
+.notification-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  color: #221314;
+  background: #ff9a9a;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
 }
 
 .mode-badge {
@@ -332,6 +363,21 @@ input {
   outline: none;
 }
 
+.settings-panel select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(124, 177, 198, 0.28);
+  border-radius: 7px;
+  color: #ecf3f7;
+  background: rgba(8, 14, 18, 0.8);
+}
+
+.input-row .recording {
+  color: #1e1114;
+  background: #ff9a9a;
+  box-shadow: 0 0 0 4px rgba(255, 154, 154, 0.18);
+}
+
 .send-button {
   background: #8fd0d6;
   color: #102127;
@@ -343,6 +389,8 @@ input {
   right: 12px;
   z-index: 5;
   width: min(370px, calc(100vw - 24px));
+  max-height: calc(100vh - 66px);
+  overflow-y: auto;
   display: grid;
   gap: 12px;
   padding: 14px;
@@ -379,6 +427,191 @@ input {
 .settings-panel input[type="checkbox"] {
   width: 18px;
   height: 18px;
+}
+
+.account-settings {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(124, 177, 198, 0.18);
+}
+
+.account-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #d8ebf1;
+  font-size: 13px;
+}
+
+.account-heading span,
+.account-label {
+  color: #9eb9c4;
+  font-size: 12px;
+}
+
+.account-action {
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border: 1px solid rgba(124, 177, 198, 0.3);
+  border-radius: 7px;
+  background: #8fd0d6;
+  color: #102127;
+}
+
+.account-error {
+  color: #ffc6c6;
+  font-size: 12px;
+}
+
+.memory-list {
+  display: grid;
+  gap: 6px;
+}
+
+.memory-row,
+.memory-add {
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  gap: 6px;
+  align-items: center;
+}
+
+.memory-row span {
+  min-width: 0;
+  overflow: hidden;
+  color: #d8ebf1;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-row button,
+.memory-add button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(124, 177, 198, 0.3);
+  border-radius: 7px;
+}
+
+.reminder-panel {
+  position: absolute;
+  top: 54px;
+  left: 12px;
+  z-index: 6;
+  width: min(370px, calc(100vw - 24px));
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(124, 177, 198, 0.3);
+  border-radius: 8px;
+  background: rgba(10, 17, 22, 0.95);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36);
+}
+
+.reminder-panel header {
+  display: grid;
+  grid-template-columns: 18px 1fr 34px;
+  gap: 9px;
+  align-items: center;
+}
+
+.reminder-panel h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.reminder-form,
+.reminder-natural {
+  display: grid;
+  gap: 8px;
+}
+
+.reminder-form label,
+.reminder-natural {
+  display: grid;
+  gap: 6px;
+  color: #bed4dd;
+  font-size: 13px;
+}
+
+.reminder-form input,
+.reminder-form select,
+.reminder-natural input {
+  width: 100%;
+  min-width: 0;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgba(124, 177, 198, 0.28);
+  border-radius: 7px;
+  color: #ecf3f7;
+  background: rgba(8, 14, 18, 0.8);
+}
+
+.reminder-action,
+.reminder-draft button,
+.reminder-item-actions button {
+  display: inline-grid;
+  min-height: 32px;
+  place-items: center;
+  gap: 6px;
+  border: 1px solid rgba(124, 177, 198, 0.3);
+  border-radius: 7px;
+}
+
+.reminder-action {
+  grid-auto-flow: column;
+  background: #8fd0d6;
+  color: #102127;
+}
+
+.reminder-draft,
+.reminder-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid rgba(124, 177, 198, 0.22);
+  border-radius: 7px;
+  color: #d8ebf1;
+  background: rgba(27, 38, 48, 0.62);
+  font-size: 12px;
+}
+
+.reminder-draft button,
+.reminder-item-actions button {
+  width: 30px;
+  flex: 0 0 30px;
+}
+
+.reminder-item > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.reminder-item strong,
+.reminder-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminder-item span,
+.reminder-empty {
+  color: #9eb9c4;
+}
+
+.reminder-item-actions {
+  display: flex;
+  gap: 5px;
 }
 
 @keyframes idle-breathe {

@@ -1,0 +1,142 @@
+{
+  "report_format": "thread_a_execution_manifest",
+  "version": "0.1-draft",
+  "observed_at": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "status": "execution_in_progress",
+  "thread": "A",
+  "route": "Windows desktop pet",
+  "baseline": {
+    "branch": "main",
+    "head": "a75bb63f75a9f2c96715bb7b53055736bbf40a94",
+    "origin_main": "a75bb63f75a9f2c96715bb7b53055736bbf40a94",
+    "remote": "git@github.com:aruveletton-rgb/arknights_live2d.git",
+    "tracked_diff": [],
+    "pre_existing_or_untracked": [
+      ".playwright-cli/",
+      "docs/implementation/THREAD_A_EXECUTION_PLAN_20261008.md",
+      "audit/thread_a_execution_manifest.json"
+    ]
+  },
+  "plan": {
+    "path": "docs/implementation/THREAD_A_EXECUTION_PLAN_20261008.md",
+    "sha256": "5abfbc2209ed63881d72e0c8334ef78a85c30381a9d790dde38f8805e0fd961f",
+    "lines": 259,
+    "status": "user_approved_execution_in_progress"
+  },
+  "read_only_findings": [
+    {
+      "id": "BASE-01",
+      "finding": "客户端当前是 Electron + React + Vite，默认后端地址为 http://127.0.0.1:8000。",
+      "evidence": [
+        "upstream/Open-LLM-VTuber/client/package.json",
+        "upstream/Open-LLM-VTuber/client/src/renderer/config/defaultConfig.ts"
+      ],
+      "status": "observed"
+    },
+    {
+      "id": "BASE-02",
+      "finding": "当前 Live2D 渲染器仍校验 placeholder-live2d，属于占位实现，不是真实 Cubism 验收证据。",
+      "evidence": [
+        "upstream/Open-LLM-VTuber/client/src/renderer/live2d/Live2DRenderer.ts",
+        "upstream/Open-LLM-VTuber/client/public/characters/placeholder_operator/placeholder.model3.json"
+      ],
+      "status": "observed"
+    },
+    {
+      "id": "BASE-03",
+      "finding": "当前客户端和服务端仍包含 Mock chat、Mock ASR、Mock TTS 路径；真实供应商资格和真实链路未在本次 A0 验证。",
+      "evidence": [
+        "upstream/Open-LLM-VTuber/client/src/renderer/api/mockChatClient.ts",
+        "upstream/Open-LLM-VTuber/client/src/renderer/api/asrClient.ts",
+        "server/asr_gateway/app.py",
+        "server/tts_gateway/app.py",
+        "server/orchestrator/app.py"
+      ],
+      "status": "observed_unverified"
+    },
+    {
+      "id": "BASE-04",
+      "finding": "客户端目录包含大量现有工作树内容；本次未据此判定发布包内容，也未清理或修改。",
+      "evidence": [
+        "read-only recursive file count was recorded during A0; no deletion performed"
+      ],
+      "status": "risk_to_review"
+    },
+    {
+      "id": "A2-01",
+      "finding": "官方 Live2D 样例入口、样例条款页和 Web SDK 入口均可访问；本次只读核对未下载或提交模型/SDK/Core。",
+      "evidence": [
+        "https://www.live2d.com/en/learn/sample/",
+        "https://www.live2d.com/en/learn/sample/model-terms/",
+        "https://www.live2d.com/en/sdk/download/web/"
+      ],
+      "status": "source_found_assets_unverified"
+    }
+  ],
+  "verification": [
+    {
+      "command": "git status --short --branch; git remote -v; git branch --show-current; git log -1 --oneline --decorate",
+      "result": "main is aligned with origin/main at a75bb63; only existing .playwright-cli/ and new draft artifacts are untracked",
+      "exit_code": 0
+    },
+    {
+      "command": "git rev-parse HEAD; git rev-parse origin/main",
+      "result": "both resolve to a75bb63f75a9f2c96715bb7b53055736bbf40a94",
+      "exit_code": 0
+    },
+    {
+      "command": "credential-like assignment scan of the new plan",
+      "result": "no credential-like assignments found",
+      "exit_code": 0
+    }
+  ],
+  "not_run": [
+    "VM, DNS, certificate and deployment operations: not run; deployment values and environment access were not supplied",
+    "supplier console/API calls and real Groq/Azure tests: not run; require user-controlled credentials and current account evidence",
+    "Windows clean-machine acceptance: current environment is a development machine, not a clean acceptance image",
+    "真实 Cubism 渲染和分发：缺少许可样例、moc3 和 Cubism Core"
+  ],
+  "gates": {
+    "G0": "user_approved",
+    "G1": "user_approved_but_assets_missing",
+    "G2": "user_approved",
+    "G3": "user_approved_but_supplier_unverified",
+    "G4": "user_approved",
+    "G5": "in_progress",
+    "G6": "not_started"
+  },
+  "execution": {
+    "completed_candidates": ["A1", "A3", "A4_client", "A4_mock_server", "A5"],
+    "blocked": [
+      {
+        "id": "A2",
+        "reason": "仓库和下载目录未发现可审计的 .moc3、真实 model3.json 或 Cubism Core；客户端未安装 Cubism/Pixi 运行库。"
+      },
+      {
+        "id": "A4_real_supplier",
+        "reason": "本次未调用 Groq/Azure，账号资格、ZDR、F0 层级和真实模型/声音仍未验证。"
+      }
+    ],
+    "verification": [
+      "client npm run build: pass",
+      "client npm test: 8 files, 19 tests passed",
+      "server python -m compileall -q server: pass",
+      "local Mock JSON ASR: pass",
+      "local Mock multipart ASR: pass",
+      "local Mock chat with TTS fallback: pass",
+      "electron-builder package:dev: pass; NSIS and portable artifacts generated",
+      "packaged renderer uses relative ./assets URLs: observed",
+      "NSIS SHA-256: A95270C1C72901895AA68AF91CAE257F39DB2403C0B85CAAF9DE7CCFBBD4AD16",
+      "portable SHA-256: D865779469CF5E18EE438F8D16E9E4DBB7DB3EA31263F0A74DD5C29A22497A0A"
+    ],
+    "not_verified": [
+      "真实 Cubism 渲染、动作、表情和授权分发",
+      "干净 Windows 实机安装/卸载和多显示器录屏",
+      "真实 Groq ZDR 与 Azure Speech F0 链路",
+      "真实音频供应商口型音画同步",
+      "公网 HTTPS、DNS、VM 部署和性能/并发门槛"
+    ]
+  },
+  "next_action": "继续保留 A2 和真实供应商项为未验证/阻塞，补齐执行报告；不把 Mock 或打包成功写成真实产品完成。"
+}

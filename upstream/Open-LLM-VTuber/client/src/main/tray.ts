@@ -28,7 +28,7 @@ export function createTray(window: BrowserWindow): Tray {
       label: "重启",
       click: () => {
         app.relaunch();
-        app.exit(0);
+        app.quit();
       }
     },
     { type: "separator" },

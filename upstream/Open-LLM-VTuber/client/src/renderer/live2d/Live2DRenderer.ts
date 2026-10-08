@@ -15,6 +15,7 @@ export interface Live2DRenderStatus {
 export class Live2DRenderer {
   private status: Live2DRenderStatus;
   private modelDict: ModelDictEntry | null = null;
+  private loadGeneration = 0;
 
   constructor(private readonly root: HTMLElement, options: Live2DRendererOptions) {
     this.status = { loaded: false, error: null, modelPath: options.modelPath };
@@ -22,21 +23,26 @@ export class Live2DRenderer {
   }
 
   async load(modelPath: string): Promise<Live2DRenderStatus> {
+    const generation = ++this.loadGeneration;
     this.status = { loaded: false, error: null, modelPath };
     this.root.dataset.modelPath = modelPath;
 
     try {
-      const response = await fetch(modelPath, { method: "GET" });
-      if (!response.ok) throw new Error(`model config ${response.status}`);
+      const modelUrl = resolveModelUrl(modelPath);
+      const response = await fetch(modelUrl, { method: "GET" });
+      if (!response.ok) throw new Error(`model config HTTP ${response.status}`);
       const model = await response.json() as { type?: string };
       if (model.type !== "placeholder-live2d") throw new Error("unsupported model format");
-      const dictPath = modelPath.replace(/\/[^/]+$/, "/model_dict.json");
+      const dictPath = new URL("model_dict.json", modelUrl).href;
       this.modelDict = await loadModelDict(dictPath);
+      if (generation !== this.loadGeneration) return this.getStatus();
       this.status = { loaded: true, error: null, modelPath };
-    } catch {
+    } catch (error) {
+      if (generation !== this.loadGeneration) return this.getStatus();
+      const detail = error instanceof Error ? error.message : "unknown error";
       this.status = {
         loaded: false,
-        error: "未找到 Live2D 模型，已切换到占位角色。请在设置中填写 model3.json 路径。",
+        error: `模型资源加载失败（${detail}）。当前为占位角色；请检查模型路径和资源文件。`,
         modelPath
       };
     }
@@ -57,4 +63,12 @@ export class Live2DRenderer {
   getStatus(): Live2DRenderStatus {
     return { ...this.status };
   }
+}
+
+export function resolveModelUrl(modelPath: string, baseUrl = document.baseURI): string {
+  const normalized = modelPath.replace(/\\/g, "/");
+  if (new URL(baseUrl).protocol === "file:" && normalized.startsWith("/")) {
+    return new URL(normalized.replace(/^\/+/, ""), baseUrl).href;
+  }
+  return new URL(normalized, baseUrl).href;
 }

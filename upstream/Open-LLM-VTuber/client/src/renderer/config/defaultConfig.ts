@@ -1,5 +1,6 @@
 export interface ClientConfig {
   backendBaseUrl: string;
+  clientToken: string;
   characterId: string;
   modelPath: string;
   alwaysOnTop: boolean;
@@ -15,8 +16,9 @@ export interface ClientConfig {
 
 export const defaultConfig: ClientConfig = {
   backendBaseUrl: "http://127.0.0.1:8000",
+  clientToken: "",
   characterId: "arknights_fan_001",
-  modelPath: "/characters/placeholder_operator/placeholder.model3.json",
+  modelPath: "characters/placeholder_operator/placeholder.model3.json",
   alwaysOnTop: true,
   characterScale: 1,
   volume: 0.85,

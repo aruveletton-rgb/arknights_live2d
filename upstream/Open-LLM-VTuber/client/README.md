@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-The Electron window starts transparent, frameless, always on top, and near the lower-right corner of the primary display. Drag the character area to move it. Use the tray menu for show/hide, settings, restart, and exit.
+The Electron window starts transparent, frameless, always on top, and near the lower-right corner of the primary display. Use the move handle in the top bar to drag the window; the character stage remains available for model interaction. Window position and size are saved and restored onto a visible display. Closing the window hides it to the tray; choose Exit from the tray menu to stop the process.
 
 ## Build And Package
 
@@ -32,7 +32,7 @@ npm run package
 npm run package:dev
 ```
 
-The Windows installer is emitted under `client/release/`.
+The Windows installer and portable executable are emitted under `client/release/`.
 
 ## Mock Mode
 
@@ -93,11 +93,11 @@ Expected response:
 }
 ```
 
-When `启用语音输入` is enabled, the MVP sends a Mock ASR fixture to `POST /api/asr` and places the returned text into the input box. If ASR returns 503, the error is shown and text input remains available. `text`, `emotion`, `motion`, and audio fields drive the character state machine. Request errors move the character to `error` and keep the client running.
+When `启用语音输入` is enabled, hold the microphone button to record and release it to send the recording to `POST /api/asr`; the returned text is placed into the input box. Mock mode keeps a deterministic fixture response. If microphone permission or ASR fails, the error is shown and text input remains available. `text`, `emotion`, `motion`, and audio fields drive the character state machine. Request errors move the character to `error` and keep the client running.
 
 ## Replace The Live2D Model
 
-Place Cubism files under:
+Place permitted Cubism files under:
 
 ```text
 client/public/characters/<character_name>/
@@ -109,7 +109,7 @@ Then set `角色模型路径` to the model config path:
 /characters/<character_name>/<model>.model3.json
 ```
 
-The current renderer validates the model config and adjacent `model_dict.json`, maps contract expressions and motions, and falls back to the built-in placeholder if assets are missing. A production Live2D SDK/Pixi renderer can be added behind `src/renderer/live2d/Live2DRenderer.ts` after authorization.
+Packaged builds use relative resource URLs so model assets can load from `file://`. The current renderer still accepts only the repository's placeholder model metadata; it does not render Cubism. A production Live2D SDK/Pixi renderer requires the separately audited SDK and model license gate before implementation or redistribution.
 
 ## Tests And Self Check
 

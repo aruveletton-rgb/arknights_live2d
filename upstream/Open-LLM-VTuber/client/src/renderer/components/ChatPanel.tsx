@@ -7,13 +7,15 @@ interface ChatPanelProps {
   busy: boolean;
   error: string | null;
   voiceInputEnabled: boolean;
+  recording: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
   onRetry: () => void;
-  onVoiceInput: () => void;
+  onVoiceStart: () => void;
+  onVoiceStop: () => void;
 }
 
-export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, onInputChange, onSend, onRetry, onVoiceInput }: ChatPanelProps) {
+export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, recording, onInputChange, onSend, onRetry, onVoiceStart, onVoiceStop }: ChatPanelProps) {
   return (
     <section className="chat-panel no-drag">
       <div className="history">
@@ -41,7 +43,21 @@ export function ChatPanel({ messages, input, busy, error, voiceInputEnabled, onI
           placeholder="博士，今天有什么任务？"
           disabled={busy}
         />
-        <button type="button" className="icon-button" onClick={onVoiceInput} disabled={!voiceInputEnabled || busy} title="语音输入">
+        <button
+          type="button"
+          className={`icon-button${recording ? " recording" : ""}`}
+          onPointerDown={(event) => {
+            event.currentTarget.setPointerCapture(event.pointerId);
+            onVoiceStart();
+          }}
+          onPointerUp={onVoiceStop}
+          onPointerCancel={onVoiceStop}
+          onPointerLeave={(event) => {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) onVoiceStop();
+          }}
+          disabled={!voiceInputEnabled || busy}
+          title={recording ? "松开结束录音" : "按住录音"}
+        >
           <Mic size={18} />
         </button>
         <button type="button" className="send-button" onClick={onSend} disabled={busy || !input.trim()} title="发送">
